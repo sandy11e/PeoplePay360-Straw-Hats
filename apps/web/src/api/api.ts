@@ -22,6 +22,7 @@ export interface ApiOptions
   extends Omit<RequestInit, "body"> {
   body?: unknown
   accessToken?: string | null
+  responseType?: "json" | "blob"
 }
 
 export async function apiRequest<T>(
@@ -32,6 +33,7 @@ export async function apiRequest<T>(
     body,
     accessToken,
     headers,
+    responseType = "json",
     ...requestOptions
   } = options
 
@@ -71,32 +73,36 @@ export async function apiRequest<T>(
     return undefined as T
   }
 
-  const data: unknown =
-    await response.json()
-
   if (!response.ok) {
     let message = "Request failed"
+    let data: unknown
 
-    if (
-      typeof data === "object" &&
-      data !== null &&
-      "error" in data
-    ) {
-      const error =
-        (
-          data as {
-            error?: {
-              message?: unknown
-            }
-          }
-        ).error
+    try {
+      data = await response.json()
 
       if (
-        typeof error?.message ===
-        "string"
+        typeof data === "object" &&
+        data !== null &&
+        "error" in data
       ) {
-        message = error.message
+        const error =
+          (
+            data as {
+              error?: {
+                message?: unknown
+              }
+            }
+          ).error
+
+        if (
+          typeof error?.message ===
+          "string"
+        ) {
+          message = error.message
+        }
       }
+    } catch {
+      message = await response.text().catch(() => "Request failed")
     }
 
     throw new ApiError(
@@ -105,6 +111,13 @@ export async function apiRequest<T>(
       data,
     )
   }
+
+  if (responseType === "blob") {
+    return (await response.blob()) as T
+  }
+
+  const data: unknown =
+    await response.json()
 
   return data as T
 }

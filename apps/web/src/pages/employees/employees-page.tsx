@@ -1,23 +1,33 @@
+import { useCallback, useEffect, useState, type FormEvent } from "react"
+import { Link } from "react-router-dom"
 import {
-  useCallback,
-  useEffect,
-  useState,
-  type FormEvent,
-} from "react"
-
-import {
-  Link,
-} from "react-router-dom"
+  AlertCircleIcon,
+  CheckCircle2Icon,
+  EyeIcon,
+  PlusIcon,
+  SearchIcon,
+} from "lucide-react"
 
 import { useAuth } from "@/auth/auth-context"
-
+import { EmptyState } from "@/components/common/empty-state"
+import { StatusBadge } from "@/components/common/status-badge"
 import { Button } from "@/components/ui/button"
 import {
   Card,
   CardContent,
+  CardDescription,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import {
@@ -28,12 +38,9 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
-
-import type {
-  Department,
-  EmployeeListResponse,
-  JobPosition,
-} from "@/types/hr"
+import type { Department, Employee, EmployeeListResponse, JobPosition } from "@/types/hr"
+import { formatDate } from "@/utils/format"
+import { isHr } from "@/utils/roles"
 
 interface DepartmentsResponse {
   departments: Department[]
@@ -44,575 +51,514 @@ interface JobPositionsResponse {
 }
 
 export function EmployeesPage() {
-  const {
-    request,
-    user,
-  } = useAuth()
+  const { request, user } = useAuth()
+  const canManage = isHr(user?.role)
 
-  const [
-    employees,
-    setEmployees,
-  ] = useState<
-    EmployeeListResponse["employees"]
-  >([])
+  const [employees, setEmployees] = useState<Employee[]>([])
+  const [departments, setDepartments] = useState<Department[]>([])
+  const [jobPositions, setJobPositions] = useState<JobPosition[]>([])
 
-  const [
-    departments,
-    setDepartments,
-  ] = useState<Department[]>([])
+  const [page, setPage] = useState(1)
+  const [pageSize] = useState(15)
+  const [totalPages, setTotalPages] = useState(1)
+  const [totalCount, setTotalCount] = useState(0)
 
-  const [
-    jobPositions,
-    setJobPositions,
-  ] = useState<JobPosition[]>([])
+  const [searchTerm, setSearchTerm] = useState("")
+  const [departmentFilter, setDepartmentFilter] = useState("ALL")
+  const [statusFilter, setStatusFilter] = useState("ALL")
 
-  const [
-    pagination,
-    setPagination,
-  ] = useState({
-    page: 1,
-    pageSize: 10,
-    total: 0,
-    totalPages: 0,
-  })
+  const [isLoading, setIsLoading] = useState(true)
+  const [errorMessage, setErrorMessage] = useState<string | null>(null)
+  const [successMessage, setSuccessMessage] = useState<string | null>(null)
 
-  const [
-    employeeCode,
-    setEmployeeCode,
-  ] = useState("")
+  // Create Employee Dialog
+  const [dialogOpen, setDialogOpen] = useState(false)
+  const [isCreating, setIsCreating] = useState(false)
 
-  const [
-    firstName,
-    setFirstName,
-  ] = useState("")
+  // Form Fields
+  const [code, setCode] = useState("")
+  const [firstName, setFirstName] = useState("")
+  const [middleName, setMiddleName] = useState("")
+  const [lastName, setLastName] = useState("")
+  const [workEmail, setWorkEmail] = useState("")
+  const [phone, setPhone] = useState("")
+  const [joiningDate, setJoiningDate] = useState(new Date().toISOString().slice(0, 10))
+  const [departmentId, setDepartmentId] = useState("")
+  const [jobPositionId, setJobPositionId] = useState("")
+  const [managerId, setManagerId] = useState("")
 
-  const [
-    lastName,
-    setLastName,
-  ] = useState("")
+  const fetchEmployees = useCallback(async () => {
+    try {
+      setIsLoading(true)
+      setErrorMessage(null)
 
-  const [
-    workEmail,
-    setWorkEmail,
-  ] = useState("")
-
-  const [
-    phone,
-    setPhone,
-  ] = useState("")
-
-  const [
-    joiningDate,
-    setJoiningDate,
-  ] = useState("")
-
-  const [
-    departmentId,
-    setDepartmentId,
-  ] = useState("")
-
-  const [
-    jobPositionId,
-    setJobPositionId,
-  ] = useState("")
-
-  const [
-    error,
-    setError,
-  ] = useState("")
-
-  const [
-    isSubmitting,
-    setIsSubmitting,
-  ] = useState(false)
-
-  const canManage =
-    user?.role === "ADMIN" ||
-    user?.role === "HR_MANAGER"
-
-  const loadEmployees =
-    useCallback(
-      async (page: number) => {
-        try {
-          setError("")
-
-          const result =
-            await request<EmployeeListResponse>(
-              `/employees?page=${page}&pageSize=10`,
-            )
-
-          setEmployees(
-            result.employees,
-          )
-
-          setPagination(
-            result.pagination,
-          )
-        } catch (caughtError) {
-          setError(
-            caughtError instanceof Error
-              ? caughtError.message
-              : "Failed to load employees",
-          )
-        }
-      },
-      [request],
-    )
-
-  const loadReferences =
-    useCallback(async () => {
-      try {
-        const [
-          departmentResult,
-          positionResult,
-        ] = await Promise.all([
-          request<DepartmentsResponse>(
-            "/departments",
-          ),
-
-          request<JobPositionsResponse>(
-            "/job-positions",
-          ),
-        ])
-
-        setDepartments(
-          departmentResult.departments.filter(
-            (department) =>
-              department.isActive,
-          ),
-        )
-
-        setJobPositions(
-          positionResult.jobPositions.filter(
-            (position) =>
-              position.isActive,
-          ),
-        )
-      } catch (caughtError) {
-        setError(
-          caughtError instanceof Error
-            ? caughtError.message
-            : "Failed to load employee form data",
-        )
+      let url = `/employees?page=${page}&pageSize=${pageSize}`
+      if (departmentFilter !== "ALL") {
+        url += `&departmentId=${departmentFilter}`
       }
-    }, [request])
+      if (statusFilter !== "ALL") {
+        url += `&status=${statusFilter}`
+      }
+
+      const result = await request<EmployeeListResponse>(url)
+      setEmployees(result.employees)
+      setTotalPages(result.pagination.totalPages)
+      setTotalCount(result.pagination.total)
+    } catch (err) {
+      setErrorMessage(err instanceof Error ? err.message : "Failed to load employees")
+    } finally {
+      setIsLoading(false)
+    }
+  }, [departmentFilter, page, pageSize, request, statusFilter])
+
+  const fetchReferenceData = useCallback(async () => {
+    try {
+      const [deptRes, posRes] = await Promise.all([
+        request<DepartmentsResponse>("/departments"),
+        request<JobPositionsResponse>("/job-positions"),
+      ])
+      setDepartments(deptRes.departments.filter((d) => d.isActive))
+      setJobPositions(posRes.jobPositions.filter((p) => p.isActive))
+    } catch (err) {
+      console.error("Failed to load reference data", err)
+    }
+  }, [request])
 
   useEffect(() => {
-    void loadEmployees(1)
-    void loadReferences()
-  }, [
-    loadEmployees,
-    loadReferences,
-  ])
+    void fetchEmployees()
+  }, [fetchEmployees])
 
-  async function handleSubmit(
-    event: FormEvent,
-  ) {
-    event.preventDefault()
+  useEffect(() => {
+    if (canManage) {
+      void fetchReferenceData()
+    }
+  }, [canManage, fetchReferenceData])
 
-    setError("")
-    setIsSubmitting(true)
+  useEffect(() => {
+    if (successMessage) {
+      const timer = setTimeout(() => setSuccessMessage(null), 5000)
+      return () => clearTimeout(timer)
+    }
+  }, [successMessage])
+
+  function openCreateDialog() {
+    setCode("")
+    setFirstName("")
+    setMiddleName("")
+    setLastName("")
+    setWorkEmail("")
+    setPhone("")
+    setJoiningDate(new Date().toISOString().slice(0, 10))
+    setDepartmentId(departments[0]?.id || "")
+    setJobPositionId(jobPositions[0]?.id || "")
+    setManagerId("")
+    setDialogOpen(true)
+  }
+
+  async function handleCreateEmployee(e: FormEvent) {
+    e.preventDefault()
+    setErrorMessage(null)
 
     try {
-      await request(
-        "/employees",
-        {
-          method: "POST",
-
-          body: {
-            employeeCode,
-            firstName,
-            lastName,
-            workEmail,
-            joiningDate,
-            departmentId,
-            jobPositionId,
-
-            ...(phone
-              ? {
-                  phone,
-                }
-              : {}),
-          },
+      setIsCreating(true)
+      await request("/employees", {
+        method: "POST",
+        body: {
+          employeeCode: code,
+          firstName,
+          middleName: middleName || null,
+          lastName,
+          workEmail,
+          phone: phone || null,
+          joiningDate: new Date(joiningDate).toISOString(),
+          departmentId,
+          jobPositionId,
+          managerId: managerId || null,
         },
-      )
+      })
 
-      setEmployeeCode("")
-      setFirstName("")
-      setLastName("")
-      setWorkEmail("")
-      setPhone("")
-      setJoiningDate("")
-      setDepartmentId("")
-      setJobPositionId("")
-
-      await loadEmployees(1)
-    } catch (caughtError) {
-      setError(
-        caughtError instanceof Error
-          ? caughtError.message
-          : "Failed to create employee",
-      )
+      setSuccessMessage(`Employee ${firstName} ${lastName} (${code}) created successfully`)
+      setDialogOpen(false)
+      void fetchEmployees()
+    } catch (err) {
+      setErrorMessage(err instanceof Error ? err.message : "Failed to create employee")
     } finally {
-      setIsSubmitting(false)
+      setIsCreating(false)
     }
   }
 
-  return (
-    <div className="space-y-8">
-      <div>
-        <h2 className="text-3xl font-bold tracking-tight">
-          Employees
-        </h2>
+  const filteredEmployees = employees.filter((emp) => {
+    const query = searchTerm.toLowerCase()
+    return (
+      emp.employeeCode.toLowerCase().includes(query) ||
+      emp.firstName.toLowerCase().includes(query) ||
+      emp.lastName.toLowerCase().includes(query) ||
+      emp.workEmail.toLowerCase().includes(query)
+    )
+  })
 
-        <p className="mt-1 text-muted-foreground">
-          Manage PeoplePay360 employee records.
-        </p>
+  return (
+    <div className="space-y-6">
+      {/* Header */}
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <h1 className="text-2xl font-bold tracking-tight text-foreground">Employee Directory</h1>
+          <p className="text-sm text-muted-foreground">
+            View profiles, contracts, schedules, and personnel records across your organization.
+          </p>
+        </div>
+
+        {canManage && (
+          <Button onClick={openCreateDialog} className="gap-2 shadow-xs">
+            <PlusIcon className="size-4" />
+            <span>Add Employee</span>
+          </Button>
+        )}
       </div>
 
-      {canManage ? (
-        <Card>
-          <CardHeader>
-            <CardTitle>
-              Add Employee
-            </CardTitle>
-          </CardHeader>
+      {/* Notifications */}
+      {errorMessage && (
+        <div className="flex items-center gap-3 rounded-lg border border-destructive/20 bg-destructive/10 p-4 text-sm text-destructive animate-in fade-in-50">
+          <AlertCircleIcon className="size-5 shrink-0" />
+          <span>{errorMessage}</span>
+        </div>
+      )}
 
-          <CardContent>
-            <form
-              onSubmit={handleSubmit}
-              className="grid gap-4 md:grid-cols-2 lg:grid-cols-4"
-            >
-              <div className="space-y-2">
-                <Label>
-                  Employee Code
-                </Label>
+      {successMessage && (
+        <div className="flex items-center gap-3 rounded-lg border border-emerald-500/20 bg-emerald-500/10 p-4 text-sm text-emerald-700 dark:text-emerald-400 animate-in fade-in-50">
+          <CheckCircle2Icon className="size-5 shrink-0" />
+          <span>{successMessage}</span>
+        </div>
+      )}
 
+      {/* Table Card */}
+      <Card className="shadow-xs">
+        <CardHeader className="border-b border-border/50 pb-4">
+          <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+            <div>
+              <CardTitle className="text-base font-semibold">Active Personnel</CardTitle>
+              <CardDescription>
+                {totalCount} employee record{totalCount === 1 ? "" : "s"} found
+              </CardDescription>
+            </div>
+
+            {/* Filter Bar */}
+            <div className="flex flex-wrap items-center gap-2.5">
+              <div className="relative w-full sm:w-60">
+                <SearchIcon className="absolute left-2.5 top-2.5 size-4 text-muted-foreground" />
                 <Input
-                  value={employeeCode}
-                  onChange={(event) =>
-                    setEmployeeCode(
-                      event.target.value,
-                    )
-                  }
-                  placeholder="EMP002"
-                  required
+                  type="search"
+                  placeholder="Search code, name, email..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="pl-8 text-sm"
                 />
               </div>
 
-              <div className="space-y-2">
-                <Label>
-                  First Name
-                </Label>
-
-                <Input
-                  value={firstName}
-                  onChange={(event) =>
-                    setFirstName(
-                      event.target.value,
-                    )
-                  }
-                  required
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label>
-                  Last Name
-                </Label>
-
-                <Input
-                  value={lastName}
-                  onChange={(event) =>
-                    setLastName(
-                      event.target.value,
-                    )
-                  }
-                  required
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label>
-                  Work Email
-                </Label>
-
-                <Input
-                  type="email"
-                  value={workEmail}
-                  onChange={(event) =>
-                    setWorkEmail(
-                      event.target.value,
-                    )
-                  }
-                  required
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label>
-                  Phone
-                </Label>
-
-                <Input
-                  value={phone}
-                  onChange={(event) =>
-                    setPhone(
-                      event.target.value,
-                    )
-                  }
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label>
-                  Joining Date
-                </Label>
-
-                <Input
-                  type="date"
-                  value={joiningDate}
-                  onChange={(event) =>
-                    setJoiningDate(
-                      event.target.value,
-                    )
-                  }
-                  required
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label>
-                  Department
-                </Label>
-
-                <select
-                  className="flex h-9 w-full rounded-md border bg-transparent px-3 text-sm"
-                  value={departmentId}
-                  onChange={(event) =>
-                    setDepartmentId(
-                      event.target.value,
-                    )
-                  }
-                  required
-                >
-                  <option value="">
-                    Select department
-                  </option>
-
-                  {departments.map(
-                    (department) => (
-                      <option
-                        key={
-                          department.id
-                        }
-                        value={
-                          department.id
-                        }
-                      >
-                        {
-                          department.name
-                        }
-                      </option>
-                    ),
-                  )}
-                </select>
-              </div>
-
-              <div className="space-y-2">
-                <Label>
-                  Job Position
-                </Label>
-
-                <select
-                  className="flex h-9 w-full rounded-md border bg-transparent px-3 text-sm"
-                  value={jobPositionId}
-                  onChange={(event) =>
-                    setJobPositionId(
-                      event.target.value,
-                    )
-                  }
-                  required
-                >
-                  <option value="">
-                    Select position
-                  </option>
-
-                  {jobPositions.map(
-                    (position) => (
-                      <option
-                        key={
-                          position.id
-                        }
-                        value={
-                          position.id
-                        }
-                      >
-                        {
-                          position.title
-                        }
-                      </option>
-                    ),
-                  )}
-                </select>
-              </div>
-
-              <div className="lg:col-span-4">
-                <Button
-                  type="submit"
-                  disabled={isSubmitting}
-                >
-                  {isSubmitting
-                    ? "Creating..."
-                    : "Create Employee"}
-                </Button>
-              </div>
-            </form>
-          </CardContent>
-        </Card>
-      ) : null}
-
-      {error ? (
-        <p className="text-sm text-destructive">
-          {error}
-        </p>
-      ) : null}
-
-      <Card>
-        <CardHeader>
-          <CardTitle>
-            Employee Directory
-          </CardTitle>
-        </CardHeader>
-
-        <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>
-                  Code
-                </TableHead>
-
-                <TableHead>
-                  Employee
-                </TableHead>
-
-                <TableHead>
-                  Department
-                </TableHead>
-
-                <TableHead>
-                  Position
-                </TableHead>
-
-                <TableHead>
-                  Status
-                </TableHead>
-
-                <TableHead />
-              </TableRow>
-            </TableHeader>
-
-            <TableBody>
-              {employees.map(
-                (employee) => (
-                  <TableRow
-                    key={employee.id}
-                  >
-                    <TableCell className="font-medium">
-                      {
-                        employee.employeeCode
-                      }
-                    </TableCell>
-
-                    <TableCell>
-                      {employee.firstName}{" "}
-                      {employee.lastName}
-
-                      <div className="text-xs text-muted-foreground">
-                        {
-                          employee.workEmail
-                        }
-                      </div>
-                    </TableCell>
-
-                    <TableCell>
-                      {
-                        employee.department
-                          .name
-                      }
-                    </TableCell>
-
-                    <TableCell>
-                      {
-                        employee.jobPosition
-                          .title
-                      }
-                    </TableCell>
-
-                    <TableCell>
-                      {
-                        employee.employmentStatus
-                      }
-                    </TableCell>
-
-                    <TableCell className="text-right">
-                      <Button
-  variant="outline"
-  size="sm"
-  render={
-    <Link to={`/employees/${employee.id}`} />
-  }
->
-  View
-</Button>
-                    </TableCell>
-                  </TableRow>
-                ),
-              )}
-            </TableBody>
-          </Table>
-
-          <div className="mt-5 flex items-center justify-between">
-            <p className="text-sm text-muted-foreground">
-              {pagination.total} employee(s)
-            </p>
-
-            <div className="flex gap-2">
-              <Button
-                variant="outline"
-                disabled={
-                  pagination.page <= 1
-                }
-                onClick={() =>
-                  void loadEmployees(
-                    pagination.page -
-                      1,
-                  )
-                }
+              <select
+                value={departmentFilter}
+                onChange={(e) => {
+                  setDepartmentFilter(e.target.value)
+                  setPage(1)
+                }}
+                className="h-9 rounded-lg border border-input bg-background px-3 text-xs shadow-xs transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
               >
-                Previous
-              </Button>
+                <option value="ALL">All Departments</option>
+                {departments.map((d) => (
+                  <option key={d.id} value={d.id}>
+                    {d.name}
+                  </option>
+                ))}
+              </select>
 
-              <Button
-                variant="outline"
-                disabled={
-                  pagination.page >=
-                  pagination.totalPages
-                }
-                onClick={() =>
-                  void loadEmployees(
-                    pagination.page +
-                      1,
-                  )
-                }
+              <select
+                value={statusFilter}
+                onChange={(e) => {
+                  setStatusFilter(e.target.value)
+                  setPage(1)
+                }}
+                className="h-9 rounded-lg border border-input bg-background px-3 text-xs shadow-xs transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
               >
-                Next
-              </Button>
+                <option value="ALL">All Statuses</option>
+                <option value="ACTIVE">Active</option>
+                <option value="ON_LEAVE">On Leave</option>
+                <option value="NOTICE_PERIOD">Notice Period</option>
+                <option value="RESIGNED">Resigned</option>
+                <option value="TERMINATED">Terminated</option>
+                <option value="INACTIVE">Inactive</option>
+              </select>
             </div>
           </div>
+        </CardHeader>
+
+        <CardContent className="p-0">
+          <div className="overflow-x-auto">
+            <Table>
+              <TableHeader>
+                <TableRow className="bg-muted/30">
+                  <TableHead className="w-24">Code</TableHead>
+                  <TableHead>Employee</TableHead>
+                  <TableHead>Department</TableHead>
+                  <TableHead>Position</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead>Joined</TableHead>
+                  <TableHead className="text-right">Action</TableHead>
+                </TableRow>
+              </TableHeader>
+
+              <TableBody>
+                {isLoading ? (
+                  Array.from({ length: 5 }).map((_, i) => (
+                    <TableRow key={i}>
+                      <TableCell colSpan={7} className="h-14 animate-pulse bg-muted/10" />
+                    </TableRow>
+                  ))
+                ) : filteredEmployees.length === 0 ? (
+                  <TableRow>
+                    <TableCell colSpan={7} className="h-48">
+                      <EmptyState
+                        title="No employees found"
+                        description={
+                          searchTerm || departmentFilter !== "ALL" || statusFilter !== "ALL"
+                            ? "No employee records match the active filters."
+                            : "No employees registered yet."
+                        }
+                      />
+                    </TableCell>
+                  </TableRow>
+                ) : (
+                  filteredEmployees.map((emp) => (
+                    <TableRow key={emp.id} className="transition-colors hover:bg-muted/40">
+                      <TableCell className="font-mono text-xs font-semibold text-foreground">
+                        {emp.employeeCode}
+                      </TableCell>
+
+                      <TableCell>
+                        <div>
+                          <p className="font-medium text-foreground">
+                            {emp.firstName} {emp.middleName ? `${emp.middleName} ` : ""}{emp.lastName}
+                          </p>
+                          <p className="text-xs text-muted-foreground">{emp.workEmail}</p>
+                        </div>
+                      </TableCell>
+
+                      <TableCell className="text-sm font-medium text-foreground/90">
+                        {emp.department?.name || "—"}
+                      </TableCell>
+
+                      <TableCell className="text-sm text-muted-foreground">
+                        {emp.jobPosition?.title || "—"}
+                      </TableCell>
+
+                      <TableCell>
+                        <StatusBadge status={emp.employmentStatus} category="employment" />
+                      </TableCell>
+
+                      <TableCell className="text-sm text-muted-foreground">
+                        {formatDate(emp.joiningDate)}
+                      </TableCell>
+
+                      <TableCell className="text-right">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          render={<Link to={`/employees/${emp.id}`} />}
+                          className="h-8 gap-1 px-2 text-xs"
+                        >
+                          <EyeIcon className="size-3.5" />
+                          <span>View</span>
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  ))
+                )}
+              </TableBody>
+            </Table>
+          </div>
+
+          {/* Pagination */}
+          {totalPages > 1 && (
+            <div className="flex items-center justify-between border-t border-border px-4 py-3 text-sm text-muted-foreground">
+              <span>
+                Page {page} of {totalPages}
+              </span>
+              <div className="flex items-center gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  disabled={page <= 1 || isLoading}
+                  onClick={() => setPage((p) => Math.max(1, p - 1))}
+                >
+                  Previous
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  disabled={page >= totalPages || isLoading}
+                  onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                >
+                  Next
+                </Button>
+              </div>
+            </div>
+          )}
         </CardContent>
       </Card>
+
+      {/* CREATE EMPLOYEE MODAL */}
+      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+        <DialogContent className="sm:max-w-xl">
+          <DialogHeader>
+            <DialogTitle>Enroll New Employee</DialogTitle>
+            <DialogDescription>
+              Create an organizational profile and link department, designation, and reporting lines.
+            </DialogDescription>
+          </DialogHeader>
+
+          <form onSubmit={handleCreateEmployee} className="space-y-4 py-2">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+              <div className="space-y-1.5">
+                <Label htmlFor="emp-code">Employee Code</Label>
+                <Input
+                  id="emp-code"
+                  required
+                  placeholder="e.g. EMP-001"
+                  value={code}
+                  onChange={(e) => setCode(e.target.value.toUpperCase())}
+                  className="font-mono"
+                />
+              </div>
+
+              <div className="space-y-1.5">
+                <Label htmlFor="emp-joining">Joining Date</Label>
+                <Input
+                  id="emp-joining"
+                  type="date"
+                  required
+                  value={joiningDate}
+                  onChange={(e) => setJoiningDate(e.target.value)}
+                />
+              </div>
+
+              <div className="space-y-1.5">
+                <Label htmlFor="emp-fname">First Name</Label>
+                <Input
+                  id="emp-fname"
+                  required
+                  placeholder="John"
+                  value={firstName}
+                  onChange={(e) => setFirstName(e.target.value)}
+                />
+              </div>
+
+              <div className="space-y-1.5">
+                <Label htmlFor="emp-mname">Middle Name (Optional)</Label>
+                <Input
+                  id="emp-mname"
+                  placeholder="A."
+                  value={middleName}
+                  onChange={(e) => setMiddleName(e.target.value)}
+                />
+              </div>
+
+              <div className="space-y-1.5">
+                <Label htmlFor="emp-lname">Last Name</Label>
+                <Input
+                  id="emp-lname"
+                  required
+                  placeholder="Doe"
+                  value={lastName}
+                  onChange={(e) => setLastName(e.target.value)}
+                />
+              </div>
+
+              <div className="space-y-1.5">
+                <Label htmlFor="emp-email">Work Email</Label>
+                <Input
+                  id="emp-email"
+                  type="email"
+                  required
+                  placeholder="john.doe@peoplepay360.local"
+                  value={workEmail}
+                  onChange={(e) => setWorkEmail(e.target.value)}
+                />
+              </div>
+
+              <div className="space-y-1.5">
+                <Label htmlFor="emp-phone">Phone Number (Optional)</Label>
+                <Input
+                  id="emp-phone"
+                  placeholder="+1-555-0100"
+                  value={phone}
+                  onChange={(e) => setPhone(e.target.value)}
+                />
+              </div>
+
+              <div className="space-y-1.5">
+                <Label htmlFor="emp-dept">Department</Label>
+                <select
+                  id="emp-dept"
+                  required
+                  value={departmentId}
+                  onChange={(e) => setDepartmentId(e.target.value)}
+                  className="flex h-9 w-full rounded-lg border border-input bg-background px-3 py-1.5 text-sm shadow-xs transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                >
+                  <option value="" disabled>Select Department</option>
+                  {departments.map((d) => (
+                    <option key={d.id} value={d.id}>
+                      {d.name} ({d.code})
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="space-y-1.5 sm:col-span-2">
+                <Label htmlFor="emp-position">Job Position</Label>
+                <select
+                  id="emp-position"
+                  required
+                  value={jobPositionId}
+                  onChange={(e) => setJobPositionId(e.target.value)}
+                  className="flex h-9 w-full rounded-lg border border-input bg-background px-3 py-1.5 text-sm shadow-xs transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                >
+                  <option value="" disabled>Select Job Position</option>
+                  {jobPositions.map((p) => (
+                    <option key={p.id} value={p.id}>
+                      {p.title} ({p.code})
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="space-y-1.5 sm:col-span-2">
+                <Label htmlFor="emp-manager">Reporting Manager (Optional)</Label>
+                <select
+                  id="emp-manager"
+                  value={managerId}
+                  onChange={(e) => setManagerId(e.target.value)}
+                  className="flex h-9 w-full rounded-lg border border-input bg-background px-3 py-1.5 text-sm shadow-xs transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                >
+                  <option value="">No Direct Manager</option>
+                  {employees.map((m) => (
+                    <option key={m.id} value={m.id}>
+                      {m.firstName} {m.lastName} ({m.employeeCode})
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </div>
+
+            <DialogFooter className="pt-4">
+              <DialogClose render={<Button variant="outline" type="button" disabled={isCreating} />}>
+                Cancel
+              </DialogClose>
+              <Button type="submit" disabled={isCreating}>
+                {isCreating ? "Enrolling..." : "Enroll Employee"}
+              </Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }
