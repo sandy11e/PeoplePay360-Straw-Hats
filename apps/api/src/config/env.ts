@@ -18,6 +18,10 @@ const envSchema = z.object({
     .string()
     .url()
     .default("http://localhost:5173"),
+
+  DATABASE_URL: z
+    .string()
+    .min(1, "DATABASE_URL is required"),
 })
 
 const result = envSchema.safeParse(process.env)
