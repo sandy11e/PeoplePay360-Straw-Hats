@@ -9,6 +9,8 @@ import {
 import {
   ArrowRightIcon,
   CoinsIcon,
+  EyeIcon,
+  EyeOffIcon,
   LockIcon,
   MailIcon,
   RefreshCwIcon,
@@ -34,6 +36,7 @@ export function LoginPage() {
 
   const [email, setEmail] = useState("admin@peoplepay360.local")
   const [password, setPassword] = useState("")
+  const [showPassword, setShowPassword] = useState(false)
   const [error, setError] = useState("")
   const [isSubmitting, setIsSubmitting] = useState(false)
 
@@ -161,16 +164,29 @@ export function LoginPage() {
                   </Label>
 
                   <div className="relative">
-                    <LockIcon className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
+                    <LockIcon className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground pointer-events-none" />
                     <Input
                       id="password"
-                      type="password"
+                      type={showPassword ? "text" : "password"}
                       placeholder="••••••••"
-                      className="pl-9 h-10 text-sm border-border transition-all focus-visible:ring-2 focus-visible:ring-primary/20"
+                      className="pl-9 pr-10 h-10 text-sm border-border transition-all focus-visible:ring-2 focus-visible:ring-primary/20"
                       value={password}
                       onChange={(event) => setPassword(event.target.value)}
                       required
                     />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword((prev) => !prev)}
+                      className="absolute right-2.5 top-1/2 -translate-y-1/2 p-1 text-muted-foreground hover:text-foreground rounded-md transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/20"
+                      aria-label={showPassword ? "Hide password" : "Show password"}
+                      title={showPassword ? "Hide password" : "Show password"}
+                    >
+                      {showPassword ? (
+                        <EyeOffIcon className="size-4" />
+                      ) : (
+                        <EyeIcon className="size-4" />
+                      )}
+                    </button>
                   </div>
                 </div>
 
