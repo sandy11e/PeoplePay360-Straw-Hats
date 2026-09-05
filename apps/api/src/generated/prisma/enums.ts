@@ -30,3 +30,14 @@ export const EmploymentStatus = {
 } as const
 
 export type EmploymentStatus = (typeof EmploymentStatus)[keyof typeof EmploymentStatus]
+
+
+export const ContractStatus = {
+  DRAFT: 'DRAFT',
+  ACTIVE: 'ACTIVE',
+  EXPIRED: 'EXPIRED',
+  TERMINATED: 'TERMINATED',
+  CANCELLED: 'CANCELLED'
+} as const
+
+export type ContractStatus = (typeof ContractStatus)[keyof typeof ContractStatus]

@@ -55,7 +55,8 @@ export const ModelName = {
   RefreshToken: 'RefreshToken',
   Department: 'Department',
   JobPosition: 'JobPosition',
-  Employee: 'Employee'
+  Employee: 'Employee',
+  EmployeeContract: 'EmployeeContract'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -146,6 +147,23 @@ export const EmployeeScalarFieldEnum = {
 } as const
 
 export type EmployeeScalarFieldEnum = (typeof EmployeeScalarFieldEnum)[keyof typeof EmployeeScalarFieldEnum]
+
+
+export const EmployeeContractScalarFieldEnum = {
+  id: 'id',
+  contractNumber: 'contractNumber',
+  employeeId: 'employeeId',
+  startDate: 'startDate',
+  endDate: 'endDate',
+  baseSalary: 'baseSalary',
+  currency: 'currency',
+  status: 'status',
+  notes: 'notes',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type EmployeeContractScalarFieldEnum = (typeof EmployeeContractScalarFieldEnum)[keyof typeof EmployeeContractScalarFieldEnum]
 
 
 export const SortOrder = {

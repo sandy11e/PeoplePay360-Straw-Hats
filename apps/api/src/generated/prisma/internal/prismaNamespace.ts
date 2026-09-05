@@ -401,7 +401,8 @@ export const ModelName = {
   RefreshToken: 'RefreshToken',
   Department: 'Department',
   JobPosition: 'JobPosition',
-  Employee: 'Employee'
+  Employee: 'Employee',
+  EmployeeContract: 'EmployeeContract'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -417,7 +418,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "refreshToken" | "department" | "jobPosition" | "employee"
+    modelProps: "user" | "refreshToken" | "department" | "jobPosition" | "employee" | "employeeContract"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -791,6 +792,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    EmployeeContract: {
+      payload: Prisma.$EmployeeContractPayload<ExtArgs>
+      fields: Prisma.EmployeeContractFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.EmployeeContractFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$EmployeeContractPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.EmployeeContractFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$EmployeeContractPayload>
+        }
+        findFirst: {
+          args: Prisma.EmployeeContractFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$EmployeeContractPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.EmployeeContractFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$EmployeeContractPayload>
+        }
+        findMany: {
+          args: Prisma.EmployeeContractFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$EmployeeContractPayload>[]
+        }
+        create: {
+          args: Prisma.EmployeeContractCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$EmployeeContractPayload>
+        }
+        createMany: {
+          args: Prisma.EmployeeContractCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.EmployeeContractCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$EmployeeContractPayload>[]
+        }
+        delete: {
+          args: Prisma.EmployeeContractDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$EmployeeContractPayload>
+        }
+        update: {
+          args: Prisma.EmployeeContractUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$EmployeeContractPayload>
+        }
+        deleteMany: {
+          args: Prisma.EmployeeContractDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.EmployeeContractUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.EmployeeContractUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$EmployeeContractPayload>[]
+        }
+        upsert: {
+          args: Prisma.EmployeeContractUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$EmployeeContractPayload>
+        }
+        aggregate: {
+          args: Prisma.EmployeeContractAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateEmployeeContract>
+        }
+        groupBy: {
+          args: Prisma.EmployeeContractGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.EmployeeContractGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.EmployeeContractCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.EmployeeContractCountAggregateOutputType> | number
+        }
+      }
+    }
   }
 } & {
   other: {
@@ -904,6 +979,23 @@ export const EmployeeScalarFieldEnum = {
 export type EmployeeScalarFieldEnum = (typeof EmployeeScalarFieldEnum)[keyof typeof EmployeeScalarFieldEnum]
 
 
+export const EmployeeContractScalarFieldEnum = {
+  id: 'id',
+  contractNumber: 'contractNumber',
+  employeeId: 'employeeId',
+  startDate: 'startDate',
+  endDate: 'endDate',
+  baseSalary: 'baseSalary',
+  currency: 'currency',
+  status: 'status',
+  notes: 'notes',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type EmployeeContractScalarFieldEnum = (typeof EmployeeContractScalarFieldEnum)[keyof typeof EmployeeContractScalarFieldEnum]
+
+
 export const SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -994,6 +1086,34 @@ export type EnumEmploymentStatusFieldRefInput<$PrismaModel> = FieldRefInputType<
  * Reference to a field of type 'EmploymentStatus[]'
  */
 export type ListEnumEmploymentStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'EmploymentStatus[]'>
+    
+
+
+/**
+ * Reference to a field of type 'Decimal'
+ */
+export type DecimalFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Decimal'>
+    
+
+
+/**
+ * Reference to a field of type 'Decimal[]'
+ */
+export type ListDecimalFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Decimal[]'>
+    
+
+
+/**
+ * Reference to a field of type 'ContractStatus'
+ */
+export type EnumContractStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ContractStatus'>
+    
+
+
+/**
+ * Reference to a field of type 'ContractStatus[]'
+ */
+export type ListEnumContractStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ContractStatus[]'>
     
 
 
@@ -1166,6 +1286,7 @@ export type GlobalOmitConfig = {
   department?: Prisma.DepartmentOmit
   jobPosition?: Prisma.JobPositionOmit
   employee?: Prisma.EmployeeOmit
+  employeeContract?: Prisma.EmployeeContractOmit
 }
 
 /* Types for Logging */

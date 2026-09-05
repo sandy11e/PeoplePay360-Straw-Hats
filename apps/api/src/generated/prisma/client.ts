@@ -66,3 +66,8 @@ export type JobPosition = Prisma.JobPositionModel
  * 
  */
 export type Employee = Prisma.EmployeeModel
+/**
+ * Model EmployeeContract
+ * 
+ */
+export type EmployeeContract = Prisma.EmployeeContractModel

@@ -11,6 +11,7 @@ import { departmentRouter } from "./modules/departments/department.route.js"
 import { employeeRouter } from "./modules/employees/employee.route.js"
 import { jobPositionRouter } from "./modules/job-positions/job-position.route.js"
 import { userRouter } from "./modules/users/user.route.js"
+import { contractRouter } from "./modules/contracts/contract.route.js"
 
 export const app = express()
 
@@ -64,6 +65,11 @@ app.use(
 app.use(
   "/api/v1/employees",
   employeeRouter,
+)
+
+app.use(
+  "/api/v1/contracts",
+  contractRouter,
 )
 
 app.use((_request, response) => {

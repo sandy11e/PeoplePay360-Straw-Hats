@@ -26,6 +26,14 @@ enum EmploymentStatus {
   INACTIVE
 }
 
+enum ContractStatus {
+  DRAFT
+  ACTIVE
+  EXPIRED
+  TERMINATED
+  CANCELLED
+}
+
 model User {
   id           String   @id @default(uuid()) @db.Uuid
   email        String   @unique @db.VarChar(320)
@@ -131,6 +139,8 @@ model Employee {
   manager       Employee?  @relation("EmployeeManager", fields: [managerId], references: [id], onDelete: SetNull)
   directReports Employee[] @relation("EmployeeManager")
 
+  contracts EmployeeContract[]
+
   createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
   updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(3)
 
@@ -140,4 +150,32 @@ model Employee {
   @@index([employmentStatus])
   @@index([firstName, lastName])
   @@map("employees")
+}
+
+model EmployeeContract {
+  id String @id @default(uuid()) @db.Uuid
+
+  contractNumber String @unique @map("contract_number") @db.VarChar(50)
+
+  employeeId String   @map("employee_id") @db.Uuid
+  employee   Employee @relation(fields: [employeeId], references: [id], onDelete: Restrict)
+
+  startDate DateTime @map("start_date") @db.Date
+  endDate   DateTime? @map("end_date") @db.Date
+
+  baseSalary Decimal @map("base_salary")
+  currency   String  @db.Char(3)
+
+  status ContractStatus @default(DRAFT)
+
+  notes String? @db.VarChar(1000)
+
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  @@index([employeeId])
+  @@index([status])
+  @@index([startDate])
+  @@index([endDate])
+  @@map("employee_contracts")
 }

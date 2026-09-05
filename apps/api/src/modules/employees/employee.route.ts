@@ -13,6 +13,15 @@ import {
   updateEmploymentStatusSchema,
 } from "./employee.schema.js"
 
+import {
+  ContractStatus,
+} from "../../generated/prisma/enums.js"
+
+import {
+  employeeContractListQuerySchema,
+  employeeIdParamSchema as contractEmployeeIdParamSchema,
+} from "../contracts/contract.schema.js"
+
 export const employeeRouter = Router()
 
 const DIRECTORY_ROLES = [
@@ -739,6 +748,129 @@ employeeRouter.patch(
 
     response.status(200).json({
       employee: updated,
+    })
+  },
+)
+
+// GET /api/v1/employees/:employeeId/contracts
+// Get all contracts for an employee (ADMIN / HR_MANAGER / PAYROLL_* only)
+employeeRouter.get(
+  "/:employeeId/contracts",
+  requireAuth,
+  requireRole(
+    UserRole.ADMIN,
+    UserRole.HR_MANAGER,
+    UserRole.PAYROLL_MANAGER,
+    UserRole.PAYROLL_USER,
+  ),
+  async (request, response) => {
+    const paramsResult =
+      contractEmployeeIdParamSchema.safeParse(
+        request.params,
+      )
+
+    if (!paramsResult.success) {
+      response.status(400).json({
+        error: {
+          code: "VALIDATION_ERROR",
+          message: "Invalid employee ID",
+          fields:
+            paramsResult.error.flatten().fieldErrors,
+        },
+      })
+
+      return
+    }
+
+    const queryResult =
+      employeeContractListQuerySchema.safeParse(
+        request.query,
+      )
+
+    if (!queryResult.success) {
+      response.status(400).json({
+        error: {
+          code: "VALIDATION_ERROR",
+          message: "Invalid query parameters",
+          fields:
+            queryResult.error.flatten().fieldErrors,
+        },
+      })
+
+      return
+    }
+
+    const { employeeId } = paramsResult.data
+    const {
+      page,
+      pageSize,
+      status,
+    } = queryResult.data
+
+    // Check if employee exists
+    const employee = await prisma.employee.findUnique(
+      {
+        where: { id: employeeId },
+      },
+    )
+
+    if (!employee) {
+      response.status(404).json({
+        error: {
+          code: "EMPLOYEE_NOT_FOUND",
+          message: "Employee not found",
+        },
+      })
+
+      return
+    }
+
+    const skip = (page - 1) * pageSize
+
+    const where: Record<string, unknown> = {
+      employeeId,
+    }
+
+    if (status) {
+      where.status = status
+    }
+
+    const contractSelect = {
+      id: true,
+      contractNumber: true,
+      employeeId: true,
+      startDate: true,
+      endDate: true,
+      baseSalary: true,
+      currency: true,
+      status: true,
+      notes: true,
+      createdAt: true,
+      updatedAt: true,
+    } as const
+
+    const [contracts, total] = await Promise.all([
+      prisma.employeeContract.findMany({
+        where,
+        select: contractSelect,
+        skip,
+        take: pageSize,
+        orderBy: {
+          startDate: "desc",
+        },
+      }),
+
+      prisma.employeeContract.count({ where }),
+    ])
+
+    response.status(200).json({
+      contracts,
+      pagination: {
+        page,
+        pageSize,
+        total,
+        totalPages: Math.ceil(total / pageSize),
+      },
     })
   },
 )
