@@ -234,6 +234,8 @@ model Employee {
   @@index([managerId])
   @@index([employmentStatus])
   @@index([firstName, lastName])
+  @@index([joiningDate])
+  @@index([createdAt])
   @@map("employees")
 }
 
@@ -557,6 +559,7 @@ model PayrunEmployee {
   @@unique([payrunId, employeeId])
   @@index([payrunId])
   @@index([employeeId])
+  @@index([warningCount])
   @@map("payrun_employees")
 }
 

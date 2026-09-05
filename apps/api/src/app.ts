@@ -18,6 +18,7 @@ import { leaveRouter } from "./modules/leave/leave.route.js"
 import { salaryStructureRouter } from "./modules/salary-structures/salary-structure.route.js"
 import { payrollRouter } from "./modules/payroll/payroll.route.js"
 import { payslipRouter } from "./modules/payslips/payslip.route.js"
+import { dashboardRouter } from "./modules/dashboard/dashboard.route.js"
 
 export const app = express()
 
@@ -106,6 +107,11 @@ app.use(
 app.use(
   "/api/v1",
   payslipRouter,
+)
+
+app.use(
+  "/api/v1",
+  dashboardRouter,
 )
 
 app.use((_request, response) => {
