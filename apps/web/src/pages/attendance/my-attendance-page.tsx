@@ -40,7 +40,10 @@ interface TodayAttendance {
 
 interface EmployeeDashboardMeResponse {
   data: {
-    todayAttendance: TodayAttendance | null
+    todayAttendance?: TodayAttendance | null
+    attendanceSummary?: {
+      today: TodayAttendance | null
+    }
   }
 }
 
@@ -55,8 +58,9 @@ interface AttendanceRecord {
 }
 
 interface AttendanceListResponse {
-  attendances: AttendanceRecord[]
-  pagination: {
+  attendance?: AttendanceRecord[]
+  attendances?: AttendanceRecord[]
+  pagination?: {
     page: number
     pageSize: number
     total: number
@@ -82,18 +86,19 @@ export function MyAttendancePage() {
       const [dashRes, listRes] = await Promise.all([
         request<EmployeeDashboardMeResponse>("/dashboard/me").catch(() => null),
         request<AttendanceListResponse>("/attendance?page=1&pageSize=20").catch(() => ({
+          attendance: [],
           attendances: [],
           pagination: { page: 1, pageSize: 20, total: 0, totalPages: 0 },
         })),
       ])
 
-      if (dashRes?.data?.todayAttendance) {
-        setTodayAttendance(dashRes.data.todayAttendance)
-      } else {
-        setTodayAttendance(null)
-      }
+      const today =
+        dashRes?.data?.attendanceSummary?.today ||
+        dashRes?.data?.todayAttendance ||
+        null
 
-      setHistory(listRes.attendances)
+      setTodayAttendance(today)
+      setHistory(listRes?.attendance || listRes?.attendances || [])
     } catch (err) {
       setErrorMessage(err instanceof Error ? err.message : "Failed to load attendance state")
     } finally {

@@ -60,7 +60,8 @@ interface AttendanceRecord {
 }
 
 interface AttendanceListResponse {
-  attendances: AttendanceRecord[]
+  attendance?: AttendanceRecord[]
+  attendances?: AttendanceRecord[]
   pagination: {
     page: number
     pageSize: number
@@ -107,9 +108,10 @@ export function AttendancePage() {
       }
 
       const res = await request<AttendanceListResponse>(url)
-      setAttendances(res.attendances)
-      setTotalPages(res.pagination.totalPages)
-      setTotalCount(res.pagination.total)
+      const records = res.attendance || res.attendances || []
+      setAttendances(records)
+      setTotalPages(res.pagination?.totalPages ?? 1)
+      setTotalCount(res.pagination?.total ?? records.length)
     } catch (err) {
       setErrorMessage(err instanceof Error ? err.message : "Failed to load attendance logs")
     } finally {
@@ -190,12 +192,17 @@ export function AttendancePage() {
     }
   }
 
-  const filteredAttendances = attendances.filter((a) => {
+  const records = Array.isArray(attendances) ? attendances : []
+  const filteredAttendances = records.filter((a) => {
+    if (!searchTerm.trim()) return true
     const query = searchTerm.toLowerCase()
+    const firstName = a.employee?.firstName?.toLowerCase() || ""
+    const lastName = a.employee?.lastName?.toLowerCase() || ""
+    const code = a.employee?.employeeCode?.toLowerCase() || ""
     return (
-      a.employee.firstName.toLowerCase().includes(query) ||
-      a.employee.lastName.toLowerCase().includes(query) ||
-      a.employee.employeeCode.toLowerCase().includes(query)
+      firstName.includes(query) ||
+      lastName.includes(query) ||
+      code.includes(query)
     )
   })
 
@@ -319,9 +326,11 @@ export function AttendancePage() {
 
                       <TableCell>
                         <p className="font-medium text-foreground">
-                          {att.employee.firstName} {att.employee.lastName}
+                          {att.employee?.firstName || "Staff"} {att.employee?.lastName || ""}
                         </p>
-                        <p className="font-mono text-xs text-muted-foreground">{att.employee.employeeCode}</p>
+                        <p className="font-mono text-xs text-muted-foreground">
+                          {att.employee?.employeeCode || "—"}
+                        </p>
                       </TableCell>
 
                       <TableCell className="text-sm">{formatDateTime(att.checkInAt)}</TableCell>
