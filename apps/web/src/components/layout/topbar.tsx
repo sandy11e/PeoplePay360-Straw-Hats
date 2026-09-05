@@ -27,21 +27,21 @@ export function Topbar({ onMenuToggle }: TopbarProps) {
   }
 
   return (
-    <header className="sticky top-0 z-30 flex h-16 w-full items-center justify-between border-b border-border/80 bg-background/80 px-4 backdrop-blur-md sm:px-6 shadow-2xs">
+    <header className="sticky top-0 z-30 flex h-16 w-full items-center justify-between border-b border-border/80 bg-card/85 px-4 backdrop-blur-md sm:px-6 shadow-2xs">
       {/* Left section: Hamburger button for mobile & Page Title */}
       <div className="flex items-center gap-3">
         <Button
           variant="outline"
           size="icon-sm"
-          className="md:hidden"
+          className="md:hidden border-border"
           onClick={onMenuToggle}
           aria-label="Open Navigation Menu"
         >
           <MenuIcon className="size-4" />
         </Button>
 
-        <div className="flex items-center gap-2">
-          <span className="size-2 rounded-full bg-primary/60" />
+        <div className="flex items-center gap-2.5">
+          <span className="size-2 rounded-full bg-primary" />
           <h2 className="text-base font-bold tracking-tight text-foreground">
             {getPageTitle(location.pathname)}
           </h2>
@@ -54,7 +54,7 @@ export function Topbar({ onMenuToggle }: TopbarProps) {
           variant="outline"
           size="sm"
           render={<Link to="/my-attendance" />}
-          className="group hidden sm:inline-flex items-center gap-2 h-8 rounded-lg px-3 text-xs font-semibold bg-primary/10 text-primary border border-primary/25 hover:bg-primary/20 hover:border-primary/40 transition-all shadow-2xs cursor-pointer active:scale-95"
+          className="group hidden sm:inline-flex items-center gap-2 h-8 rounded-lg px-3 text-xs font-semibold bg-secondary text-primary border border-primary/20 hover:bg-primary hover:text-white transition-all shadow-2xs cursor-pointer active:scale-95"
           title="Personal Punch Clock (Check In / Out)"
         >
           <span className="relative flex size-2 items-center justify-center">

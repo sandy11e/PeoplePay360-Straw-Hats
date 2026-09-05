@@ -199,20 +199,20 @@ export function Sidebar({ onNavClick }: SidebarProps) {
   }).filter(Boolean) as NavSection[]
 
   return (
-    <div className="flex h-full flex-col justify-between bg-card text-card-foreground">
+    <div className="flex h-full flex-col justify-between bg-sidebar text-sidebar-foreground select-none">
       {/* Brand Header */}
       <div>
-        <div className="flex h-16 items-center border-b border-border/80 px-5 bg-gradient-to-r from-primary/[0.03] to-transparent">
+        <div className="flex h-16 items-center border-b border-sidebar-border/70 px-5 bg-gradient-to-r from-white/[0.04] to-transparent">
           <div className="flex items-center gap-3">
-            <div className="flex size-10 items-center justify-center rounded-xl bg-gradient-to-br from-primary via-indigo-600 to-violet-600 text-white shadow-[0_4px_16px_-2px_rgba(59,73,223,0.4)] ring-2 ring-primary/30 transition-transform hover:scale-105 animate-gradient-flow">
+            <div className="flex size-10 items-center justify-center rounded-xl bg-gradient-to-br from-[#082366] via-[#0e3894] to-[#1b53c5] text-white shadow-[0_4px_16px_-2px_rgba(8,35,102,0.6)] ring-2 ring-[#c7d4fc]/30 transition-transform hover:scale-105">
               <CoinsIcon className="size-5 drop-shadow-xs animate-pulse-glow" />
             </div>
             <div>
               <div className="flex items-center gap-1.5">
-                <h1 className="text-base font-bold tracking-tight text-foreground">PeoplePay</h1>
-                <span className="rounded-md bg-primary/10 px-1.5 py-0.5 text-[10px] font-extrabold text-primary uppercase tracking-wider animate-pulse">360</span>
+                <h1 className="text-base font-bold tracking-tight text-white">PeoplePay</h1>
+                <span className="rounded-md bg-white/15 px-1.5 py-0.5 text-[10px] font-extrabold text-[#c7d4fc] uppercase tracking-wider">360</span>
               </div>
-              <p className="text-[11px] font-medium text-muted-foreground">HR & Payroll Suite</p>
+              <p className="text-[11px] font-medium text-sidebar-foreground/70">HR & Payroll Suite</p>
             </div>
           </div>
         </div>
@@ -221,7 +221,7 @@ export function Sidebar({ onNavClick }: SidebarProps) {
         <nav className="space-y-6 px-3 py-4" aria-label="Main Navigation">
           {visibleSections.map((section) => (
             <div key={section.title} className="space-y-1">
-              <h2 className="px-3 text-[11px] font-bold uppercase tracking-wider text-muted-foreground/70">
+              <h2 className="px-3 text-[10px] font-bold uppercase tracking-wider text-sidebar-foreground/50">
                 {section.title}
               </h2>
               <div className="mt-1 space-y-0.5">
@@ -237,12 +237,12 @@ export function Sidebar({ onNavClick }: SidebarProps) {
                         [
                           "group flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-all duration-150",
                           isActive
-                            ? "bg-gradient-to-r from-primary/15 via-primary/8 to-transparent text-primary font-semibold border-l-[3px] border-primary shadow-2xs pl-2.5"
-                            : "text-muted-foreground/90 hover:bg-muted/60 hover:text-foreground hover:translate-x-0.5",
+                            ? "bg-gradient-to-r from-white/15 via-white/10 to-transparent text-white font-semibold border-l-[3px] border-[#9db7fc] shadow-2xs pl-2.5"
+                            : "text-sidebar-foreground/80 hover:bg-white/10 hover:text-white hover:translate-x-0.5",
                         ].join(" ")
                       }
                     >
-                      <Icon className="size-4 shrink-0 transition-transform duration-200 group-hover:scale-110 group-hover:rotate-6" />
+                      <Icon className="size-4 shrink-0 transition-transform duration-200 group-hover:scale-110 group-hover:rotate-6 text-[#c7d4fc]" />
                       <span className="truncate">{item.label}</span>
                     </NavLink>
                   )
@@ -254,19 +254,19 @@ export function Sidebar({ onNavClick }: SidebarProps) {
       </div>
 
       {/* Footer Profile & Status Widget */}
-      <div className="border-t border-border/80 p-3 bg-muted/20">
-        <div className="flex items-center gap-2.5 rounded-lg p-2 transition-colors hover:bg-muted/50">
-          <div className="flex size-8 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary font-bold text-xs ring-1 ring-primary/20">
+      <div className="border-t border-sidebar-border/70 p-3 bg-black/15">
+        <div className="flex items-center gap-2.5 rounded-lg p-2 transition-colors hover:bg-white/5">
+          <div className="flex size-8 shrink-0 items-center justify-center rounded-full bg-[#0d348a] text-white font-bold text-xs ring-1 ring-[#c7d4fc]/40">
             {user?.email?.charAt(0).toUpperCase() || "U"}
           </div>
           <div className="min-w-0 flex-1">
-            <p className="truncate text-xs font-semibold text-foreground">{user?.email || "User"}</p>
+            <p className="truncate text-xs font-semibold text-white">{user?.email || "User"}</p>
             <div className="flex items-center gap-1.5">
               <span className="relative flex size-2 shrink-0 items-center justify-center">
                 <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-60" />
-                <span className="relative inline-flex size-1.5 rounded-full bg-emerald-500" />
+                <span className="relative inline-flex size-1.5 rounded-full bg-emerald-400" />
               </span>
-              <p className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider">{user?.role?.replace(/_/g, " ") || "Active"}</p>
+              <p className="text-[10px] font-medium text-[#c7d4fc]/70 uppercase tracking-wider">{user?.role?.replace(/_/g, " ") || "Active"}</p>
             </div>
           </div>
         </div>
