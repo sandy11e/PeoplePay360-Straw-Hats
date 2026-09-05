@@ -13,6 +13,7 @@ import { prisma } from "../../lib/prisma.js"
 import { extractClientInfo, recordAuditLog } from "../audit/audit.service.js"
 
 import {
+  bulkImportEmployeesSchema,
   createEmployeeSchema,
   employeeIdParamSchema,
   employeeListQuerySchema,
@@ -22,6 +23,7 @@ import {
 
 import {
   ContractStatus,
+  EmploymentStatus,
 } from "../../generated/prisma/enums.js"
 
 import {
@@ -372,6 +374,376 @@ employeeRouter.get(
         totalPages:
           Math.ceil(total / pageSize),
       },
+    })
+  },
+)
+
+// POST /api/v1/employees/bulk-import
+employeeRouter.post(
+  "/bulk-import",
+  requireAuth,
+  requireRole(UserRole.ADMIN, UserRole.HR_MANAGER),
+  async (request, response) => {
+    const parsed = bulkImportEmployeesSchema.safeParse(request.body)
+
+    if (!parsed.success) {
+      response.status(400).json({
+        error: {
+          code: "VALIDATION_ERROR",
+          message: "Invalid bulk import payload",
+          fields: parsed.error.flatten().fieldErrors,
+        },
+      })
+      return
+    }
+
+    const {
+      employees: items,
+      autoCreateContract,
+      assignDefaultSchedule,
+      allocateDefaultLeaves,
+    } = parsed.data
+
+    // Fetch reference data for flexible lookup
+    const [
+      allDepts,
+      allPositions,
+      allSalaryStructures,
+      defaultSchedule,
+      allActiveLeaveTypes,
+    ] = await Promise.all([
+      prisma.department.findMany(),
+      prisma.jobPosition.findMany(),
+      prisma.salaryStructure.findMany({ where: { isActive: true } }),
+      assignDefaultSchedule
+        ? prisma.workSchedule.findFirst({ where: { isActive: true } })
+        : null,
+      allocateDefaultLeaves
+        ? prisma.leaveType.findMany({ where: { isActive: true } })
+        : [],
+    ])
+
+    const deptMap = new Map<string, (typeof allDepts)[0]>()
+    for (const d of allDepts) {
+      deptMap.set(d.id.toLowerCase(), d)
+      deptMap.set(d.code.toLowerCase(), d)
+      deptMap.set(d.name.toLowerCase(), d)
+    }
+
+    const posMap = new Map<string, (typeof allPositions)[0]>()
+    for (const p of allPositions) {
+      posMap.set(p.id.toLowerCase(), p)
+      posMap.set(p.code.toLowerCase(), p)
+      posMap.set(p.title.toLowerCase(), p)
+    }
+
+    const structureMap = new Map<string, (typeof allSalaryStructures)[0]>()
+    for (const s of allSalaryStructures) {
+      structureMap.set(s.id.toLowerCase(), s)
+      structureMap.set(s.code.toLowerCase(), s)
+      structureMap.set(s.name.toLowerCase(), s)
+    }
+
+    // Lookup existing employee codes and emails in DB
+    const inputCodes = items.map((i) => i.employeeCode)
+    const inputEmails = items.map((i) => i.workEmail)
+
+    const existingEmployees = await prisma.employee.findMany({
+      where: {
+        OR: [
+          { employeeCode: { in: inputCodes } },
+          { workEmail: { in: inputEmails } },
+        ],
+      },
+      select: { employeeCode: true, workEmail: true },
+    })
+
+    const existingCodesSet = new Set(
+      existingEmployees.map((e) => e.employeeCode.toUpperCase()),
+    )
+    const existingEmailsSet = new Set(
+      existingEmployees.map((e) => e.workEmail.toLowerCase()),
+    )
+
+    // Track duplicates inside the incoming batch
+    const seenBatchCodes = new Set<string>()
+    const seenBatchEmails = new Set<string>()
+
+    const imported: unknown[] = []
+    const errors: Array<{
+      rowNumber: number
+      employeeCode?: string
+      workEmail?: string
+      reason: string
+    }> = []
+
+    async function resolveDepartment(input: string) {
+      const key = input.toLowerCase().trim()
+      if (deptMap.has(key)) return deptMap.get(key)!
+      // Auto-create missing department so admins are not blocked by naming variations
+      const code =
+        input.toUpperCase().replace(/[^A-Z0-9]/g, "").slice(0, 10) ||
+        `DEPT_${Date.now() % 10000}`
+      const name = input.trim()
+      try {
+        const created = await prisma.department.create({
+          data: { code, name, isActive: true },
+        })
+        deptMap.set(created.id.toLowerCase(), created)
+        deptMap.set(created.code.toLowerCase(), created)
+        deptMap.set(created.name.toLowerCase(), created)
+        return created
+      } catch {
+        return (
+          allDepts.find((d) => d.isActive) ??
+          (await prisma.department.findFirst({ where: { isActive: true } }))
+        )
+      }
+    }
+
+    async function resolveJobPosition(input: string) {
+      const key = input.toLowerCase().trim()
+      if (posMap.has(key)) return posMap.get(key)!
+      // Auto-create missing job position
+      const code =
+        input.toUpperCase().replace(/[^A-Z0-9]/g, "").slice(0, 10) ||
+        `POS_${Date.now() % 10000}`
+      const title = input.trim()
+      try {
+        const created = await prisma.jobPosition.create({
+          data: { code, title, isActive: true },
+        })
+        posMap.set(created.id.toLowerCase(), created)
+        posMap.set(created.code.toLowerCase(), created)
+        posMap.set(created.title.toLowerCase(), created)
+        return created
+      } catch {
+        return (
+          allPositions.find((p) => p.isActive) ??
+          (await prisma.jobPosition.findFirst({ where: { isActive: true } }))
+        )
+      }
+    }
+
+    for (let index = 0; index < items.length; index++) {
+      const rowNumber = index + 1
+      const item = items[index]
+      if (!item) continue
+
+      // Check duplicate in DB
+      if (existingCodesSet.has(item.employeeCode)) {
+        errors.push({
+          rowNumber,
+          employeeCode: item.employeeCode,
+          workEmail: item.workEmail,
+          reason: `Employee code '${item.employeeCode}' already exists in the system`,
+        })
+        continue
+      }
+      if (existingEmailsSet.has(item.workEmail)) {
+        errors.push({
+          rowNumber,
+          employeeCode: item.employeeCode,
+          workEmail: item.workEmail,
+          reason: `Work email '${item.workEmail}' already exists in the system`,
+        })
+        continue
+      }
+
+      // Check duplicate in current batch
+      if (seenBatchCodes.has(item.employeeCode)) {
+        errors.push({
+          rowNumber,
+          employeeCode: item.employeeCode,
+          workEmail: item.workEmail,
+          reason: `Duplicate employee code '${item.employeeCode}' within the uploaded batch`,
+        })
+        continue
+      }
+      if (seenBatchEmails.has(item.workEmail)) {
+        errors.push({
+          rowNumber,
+          employeeCode: item.employeeCode,
+          workEmail: item.workEmail,
+          reason: `Duplicate work email '${item.workEmail}' within the uploaded batch`,
+        })
+        continue
+      }
+
+      // Resolve department
+      const dept = await resolveDepartment(item.department)
+      if (!dept) {
+        errors.push({
+          rowNumber,
+          employeeCode: item.employeeCode,
+          workEmail: item.workEmail,
+          reason: `Could not resolve or create department '${item.department}'`,
+        })
+        continue
+      }
+
+      // Resolve position
+      const pos = await resolveJobPosition(item.jobPosition)
+      if (!pos) {
+        errors.push({
+          rowNumber,
+          employeeCode: item.employeeCode,
+          workEmail: item.workEmail,
+          reason: `Could not resolve or create job position '${item.jobPosition}'`,
+        })
+        continue
+      }
+
+      // Resolve manager if specified
+      let managerId: string | null = null
+      if (item.manager) {
+        const manager = await prisma.employee.findFirst({
+          where: {
+            OR: [
+              { id: item.manager },
+              { employeeCode: item.manager.toUpperCase() },
+              { workEmail: item.manager.toLowerCase() },
+            ],
+          },
+        })
+        if (manager) {
+          managerId = manager.id
+        }
+      }
+
+      try {
+        const joiningDate = new Date(`${item.joiningDate}T00:00:00.000Z`)
+
+        // Create employee
+        const createdEmp = await prisma.employee.create({
+          data: {
+            employeeCode: item.employeeCode,
+            firstName: item.firstName,
+            middleName: item.middleName || null,
+            lastName: item.lastName,
+            workEmail: item.workEmail,
+            phone: item.phone || null,
+            joiningDate,
+            employmentStatus: item.employmentStatus ?? EmploymentStatus.ACTIVE,
+            departmentId: dept.id,
+            jobPositionId: pos.id,
+            managerId,
+          },
+          select: employeeSelect,
+        })
+
+        seenBatchCodes.add(item.employeeCode)
+        seenBatchEmails.add(item.workEmail)
+        existingCodesSet.add(item.employeeCode)
+        existingEmailsSet.add(item.workEmail)
+
+        // 1. Auto-create contract if baseSalary provided
+        if (autoCreateContract && item.baseSalary && item.baseSalary > 0) {
+          const contractNumber = `CON-${item.employeeCode}`
+          const existingContract = await prisma.employeeContract.findUnique({
+            where: { contractNumber },
+          })
+          await prisma.employeeContract.create({
+            data: {
+              contractNumber: existingContract
+                ? `${contractNumber}-${Date.now() % 10000}`
+                : contractNumber,
+              employeeId: createdEmp.id,
+              startDate: joiningDate,
+              baseSalary: item.baseSalary,
+              currency: item.currency || "USD",
+              status: ContractStatus.ACTIVE,
+            },
+          })
+        }
+
+        // 2. Assign salary structure if specified
+        if (item.salaryStructure) {
+          const targetStructure = structureMap.get(
+            item.salaryStructure.toLowerCase().trim(),
+          )
+          if (targetStructure) {
+            await prisma.employeeSalaryStructureAssignment.create({
+              data: {
+                employeeId: createdEmp.id,
+                structureId: targetStructure.id,
+                effectiveFrom: joiningDate,
+              },
+            })
+          }
+        }
+
+        // 3. Assign default work schedule
+        if (assignDefaultSchedule && defaultSchedule) {
+          await prisma.employeeScheduleAssignment.create({
+            data: {
+              employeeId: createdEmp.id,
+              scheduleId: defaultSchedule.id,
+              effectiveFrom: joiningDate,
+            },
+          })
+        }
+
+        // 4. Allocate default leave types for current year
+        if (allocateDefaultLeaves && allActiveLeaveTypes.length > 0) {
+          const currentYear = new Date().getFullYear()
+          for (const lt of allActiveLeaveTypes) {
+            await prisma.leaveAllocation.upsert({
+              where: {
+                employeeId_leaveTypeId_year: {
+                  employeeId: createdEmp.id,
+                  leaveTypeId: lt.id,
+                  year: currentYear,
+                },
+              },
+              create: {
+                employeeId: createdEmp.id,
+                leaveTypeId: lt.id,
+                year: currentYear,
+                allocatedDays: 15,
+                usedDays: 0,
+              },
+              update: {},
+            })
+          }
+        }
+
+        imported.push(createdEmp)
+      } catch (err) {
+        errors.push({
+          rowNumber,
+          employeeCode: item.employeeCode,
+          workEmail: item.workEmail,
+          reason:
+            err instanceof Error
+              ? err.message
+              : "Failed to create employee record",
+        })
+      }
+    }
+
+    const auth = response.locals.auth as AuthContext | undefined
+    const clientInfo = extractClientInfo(request)
+
+    await recordAuditLog({
+      actorUserId: auth?.userId,
+      action: "EMPLOYEES_BULK_IMPORTED",
+      entityType: "Employee",
+      entityId: null,
+      metadata: {
+        totalRequested: items.length,
+        importedCount: imported.length,
+        failedCount: errors.length,
+      },
+      ...clientInfo,
+    })
+
+    response.status(200).json({
+      totalProcessed: items.length,
+      importedCount: imported.length,
+      failedCount: errors.length,
+      imported,
+      errors,
     })
   },
 )

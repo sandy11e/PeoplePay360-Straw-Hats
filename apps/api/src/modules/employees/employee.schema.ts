@@ -145,3 +145,115 @@ export const employeeListQuerySchema = z.object({
 export const employeeIdParamSchema = z.object({
   id: z.string().uuid(),
 })
+
+export const bulkImportEmployeeItemSchema = z.object({
+  employeeCode: z
+    .string()
+    .trim()
+    .min(2)
+    .max(30)
+    .transform((value) => value.toUpperCase()),
+
+  firstName: z
+    .string()
+    .trim()
+    .min(1)
+    .max(100),
+
+  middleName: z
+    .string()
+    .trim()
+    .max(100)
+    .optional()
+    .nullable(),
+
+  lastName: z
+    .string()
+    .trim()
+    .min(1)
+    .max(100),
+
+  workEmail: z
+    .string()
+    .trim()
+    .email()
+    .transform((value) => value.toLowerCase()),
+
+  phone: z
+    .string()
+    .trim()
+    .max(30)
+    .optional()
+    .nullable(),
+
+  joiningDate: z
+    .string()
+    .regex(datePattern, "joiningDate must use YYYY-MM-DD"),
+
+  department: z
+    .string()
+    .trim()
+    .min(1)
+    .max(120),
+
+  jobPosition: z
+    .string()
+    .trim()
+    .min(1)
+    .max(120),
+
+  manager: z
+    .string()
+    .trim()
+    .optional()
+    .nullable(),
+
+  employmentStatus: z
+    .nativeEnum(EmploymentStatus)
+    .optional()
+    .default(EmploymentStatus.ACTIVE),
+
+  baseSalary: z
+    .number()
+    .nonnegative()
+    .optional()
+    .nullable(),
+
+  currency: z
+    .string()
+    .trim()
+    .length(3)
+    .optional()
+    .default("USD"),
+
+  salaryStructure: z
+    .string()
+    .trim()
+    .optional()
+    .nullable(),
+})
+
+export const bulkImportEmployeesSchema = z.object({
+  employees: z
+    .array(bulkImportEmployeeItemSchema)
+    .min(1, "At least one employee must be provided")
+    .max(500, "Maximum 500 employees per import batch"),
+
+  autoCreateContract: z
+    .boolean()
+    .optional()
+    .default(true),
+
+  assignDefaultSchedule: z
+    .boolean()
+    .optional()
+    .default(true),
+
+  allocateDefaultLeaves: z
+    .boolean()
+    .optional()
+    .default(true),
+})
+
+export type BulkImportEmployeeItem = z.infer<typeof bulkImportEmployeeItemSchema>
+export type BulkImportEmployeesInput = z.infer<typeof bulkImportEmployeesSchema>

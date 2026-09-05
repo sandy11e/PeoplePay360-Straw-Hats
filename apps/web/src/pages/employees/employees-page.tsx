@@ -4,6 +4,7 @@ import {
   AlertCircleIcon,
   CheckCircle2Icon,
   EyeIcon,
+  FileSpreadsheetIcon,
   PlusIcon,
   SearchIcon,
 } from "lucide-react"
@@ -11,6 +12,7 @@ import {
 import { useAuth } from "@/auth/auth-context"
 import { EmptyState } from "@/components/common/empty-state"
 import { StatusBadge } from "@/components/common/status-badge"
+import { BulkImportDialog } from "./bulk-import-dialog"
 import { Button } from "@/components/ui/button"
 import {
   Card,
@@ -74,6 +76,9 @@ export function EmployeesPage() {
   // Create Employee Dialog
   const [dialogOpen, setDialogOpen] = useState(false)
   const [isCreating, setIsCreating] = useState(false)
+
+  // Bulk Import Dialog
+  const [bulkDialogOpen, setBulkDialogOpen] = useState(false)
 
   // Form Fields
   const [code, setCode] = useState("")
@@ -209,10 +214,21 @@ export function EmployeesPage() {
         </div>
 
         {canManage && (
-          <Button onClick={openCreateDialog} className="gap-2 shadow-xs">
-            <PlusIcon className="size-4" />
-            <span>Add Employee</span>
-          </Button>
+          <div className="flex items-center gap-2.5">
+            <Button
+              variant="outline"
+              onClick={() => setBulkDialogOpen(true)}
+              className="gap-2 shadow-xs cursor-pointer border-primary/20 hover:bg-primary/5 text-primary"
+            >
+              <FileSpreadsheetIcon className="size-4" />
+              <span>Import Excel</span>
+            </Button>
+
+            <Button onClick={openCreateDialog} className="gap-2 shadow-xs cursor-pointer">
+              <PlusIcon className="size-4" />
+              <span>Add Employee</span>
+            </Button>
+          </div>
         )}
       </div>
 
@@ -559,6 +575,18 @@ export function EmployeesPage() {
           </form>
         </DialogContent>
       </Dialog>
+
+      {canManage && (
+        <BulkImportDialog
+          open={bulkDialogOpen}
+          onOpenChange={setBulkDialogOpen}
+          onSuccess={(msg) => {
+            setSuccessMessage(msg)
+            void fetchEmployees()
+          }}
+          request={request}
+        />
+      )}
     </div>
   )
 }

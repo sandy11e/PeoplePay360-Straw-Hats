@@ -126,14 +126,14 @@ export function DashboardPage() {
         <div className="flex items-center gap-2">
           {/* Admin Tab Switcher */}
           {role === "ADMIN" && (
-            <div className="flex rounded-md border border-border bg-muted p-1 text-xs font-medium">
+            <div className="flex rounded-xl border border-border/80 bg-muted/60 p-1 text-xs font-semibold shadow-2xs">
               <button
                 type="button"
                 onClick={() => setAdminTab("hr")}
-                className={`rounded px-3 py-1 transition-colors ${
+                className={`rounded-lg px-3.5 py-1.5 transition-all duration-150 cursor-pointer ${
                   adminTab === "hr"
-                    ? "bg-background text-foreground shadow-sm"
-                    : "text-muted-foreground hover:text-foreground"
+                    ? "bg-card text-foreground font-bold shadow-xs border border-border/60"
+                    : "text-muted-foreground hover:text-foreground hover:bg-card/30"
                 }`}
               >
                 HR Overview
@@ -141,10 +141,10 @@ export function DashboardPage() {
               <button
                 type="button"
                 onClick={() => setAdminTab("payroll")}
-                className={`rounded px-3 py-1 transition-colors ${
+                className={`rounded-lg px-3.5 py-1.5 transition-all duration-150 cursor-pointer ${
                   adminTab === "payroll"
-                    ? "bg-background text-foreground shadow-sm"
-                    : "text-muted-foreground hover:text-foreground"
+                    ? "bg-card text-foreground font-bold shadow-xs border border-border/60"
+                    : "text-muted-foreground hover:text-foreground hover:bg-card/30"
                 }`}
               >
                 Payroll & Finance
@@ -462,15 +462,17 @@ export function DashboardPage() {
             {/* Top KPI Metric Cards */}
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
               {/* Total Headcount */}
-              <Card>
+              <Card className="interactive-card border-t-2 border-t-primary group animate-fade-in-up stagger-1">
                 <CardHeader className="flex flex-row items-center justify-between pb-2">
-                  <CardTitle className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                  <CardTitle className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                     Total Headcount
                   </CardTitle>
-                  <UsersIcon className="h-4 w-4 text-primary" />
+                  <div className="flex size-8 items-center justify-center rounded-lg bg-primary/10 text-primary ring-1 ring-primary/20 group-hover:scale-110 group-hover:rotate-6 transition-transform duration-200">
+                    <UsersIcon className="size-4" />
+                  </div>
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold text-foreground">
+                  <div className="text-3xl font-bold tracking-tight text-foreground">
                     {hr.activeEmployees}
                   </div>
                   <p className="mt-1 text-xs text-muted-foreground">
@@ -480,15 +482,17 @@ export function DashboardPage() {
               </Card>
 
               {/* Attendance Today */}
-              <Card>
+              <Card className="interactive-card border-t-2 border-t-emerald-500 group animate-fade-in-up stagger-2">
                 <CardHeader className="flex flex-row items-center justify-between pb-2">
-                  <CardTitle className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                  <CardTitle className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                     Attendance Today
                   </CardTitle>
-                  <CalendarCheckIcon className="h-4 w-4 text-emerald-600" />
+                  <div className="flex size-8 items-center justify-center rounded-lg bg-emerald-500/10 text-emerald-600 ring-1 ring-emerald-500/20 group-hover:scale-110 group-hover:rotate-6 transition-transform duration-200">
+                    <CalendarCheckIcon className="size-4" />
+                  </div>
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold text-emerald-600">
+                  <div className="text-3xl font-bold tracking-tight text-emerald-600">
                     {hr.attendanceToday.PRESENT + hr.attendanceToday.LATE}
                   </div>
                   <p className="mt-1 text-xs text-muted-foreground">
@@ -499,15 +503,17 @@ export function DashboardPage() {
               </Card>
 
               {/* On Leave Today */}
-              <Card>
+              <Card className="interactive-card border-t-2 border-t-amber-500 group animate-fade-in-up stagger-3">
                 <CardHeader className="flex flex-row items-center justify-between pb-2">
-                  <CardTitle className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                  <CardTitle className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                     On Leave Today
                   </CardTitle>
-                  <CalendarDaysIcon className="h-4 w-4 text-amber-500" />
+                  <div className="flex size-8 items-center justify-center rounded-lg bg-amber-500/10 text-amber-600 ring-1 ring-amber-500/20 group-hover:scale-110 group-hover:rotate-6 transition-transform duration-200">
+                    <CalendarDaysIcon className="size-4" />
+                  </div>
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold text-amber-600">
+                  <div className="text-3xl font-bold tracking-tight text-amber-600">
                     {hr.employeesOnLeave}
                   </div>
                   <p className="mt-1 text-xs text-muted-foreground">
@@ -517,23 +523,25 @@ export function DashboardPage() {
               </Card>
 
               {/* Pending Approvals */}
-              <Card>
+              <Card className="interactive-card border-t-2 border-t-blue-500 group animate-fade-in-up stagger-4">
                 <CardHeader className="flex flex-row items-center justify-between pb-2">
-                  <CardTitle className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                  <CardTitle className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                     Pending Leave Approvals
                   </CardTitle>
-                  <FileCheckIcon className="h-4 w-4 text-blue-500" />
+                  <div className="flex size-8 items-center justify-center rounded-lg bg-blue-500/10 text-blue-600 ring-1 ring-blue-500/20 group-hover:scale-110 group-hover:rotate-6 transition-transform duration-200">
+                    <FileCheckIcon className="size-4" />
+                  </div>
                 </CardHeader>
                 <CardContent>
                   <div className="flex items-center justify-between">
-                    <div className="text-2xl font-bold text-foreground">
+                    <div className="text-3xl font-bold tracking-tight text-foreground">
                       {hr.pendingLeaveRequests}
                     </div>
                     {hr.pendingLeaveRequests > 0 && (
                       <Button
                         variant="outline"
                         size="sm"
-                        className="text-xs"
+                        className="text-xs h-7"
                         render={<Link to="/leave" />}
                       >
                         Review
@@ -670,15 +678,17 @@ export function DashboardPage() {
             {/* Top Financial KPI Metrics */}
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
               {/* Gross Payroll */}
-              <Card>
+              <Card className="interactive-card border-t-2 border-t-primary group animate-fade-in-up stagger-1">
                 <CardHeader className="flex flex-row items-center justify-between pb-2">
-                  <CardTitle className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                  <CardTitle className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                     Cumulative Gross Pay
                   </CardTitle>
-                  <CoinsIcon className="h-4 w-4 text-primary" />
+                  <div className="flex size-8 items-center justify-center rounded-lg bg-primary/10 text-primary ring-1 ring-primary/20 group-hover:scale-110 group-hover:rotate-6 transition-transform duration-200">
+                    <CoinsIcon className="size-4" />
+                  </div>
                 </CardHeader>
                 <CardContent>
-                  <div className="font-mono text-2xl font-bold text-foreground">
+                  <div className="font-mono text-3xl font-bold tracking-tight text-foreground">
                     {formatMoney(payroll.grossPayroll)}
                   </div>
                   <p className="mt-1 text-xs text-muted-foreground">
@@ -688,15 +698,17 @@ export function DashboardPage() {
               </Card>
 
               {/* Total Deductions */}
-              <Card>
+              <Card className="interactive-card border-t-2 border-t-rose-500 group animate-fade-in-up stagger-2">
                 <CardHeader className="flex flex-row items-center justify-between pb-2">
-                  <CardTitle className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                  <CardTitle className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                     Total Deductions
                   </CardTitle>
-                  <FileCheckIcon className="h-4 w-4 text-rose-500" />
+                  <div className="flex size-8 items-center justify-center rounded-lg bg-rose-500/10 text-rose-600 ring-1 ring-rose-500/20 group-hover:scale-110 group-hover:rotate-6 transition-transform duration-200">
+                    <FileCheckIcon className="size-4" />
+                  </div>
                 </CardHeader>
                 <CardContent>
-                  <div className="font-mono text-2xl font-bold text-rose-600">
+                  <div className="font-mono text-3xl font-bold tracking-tight text-rose-600">
                     -{formatMoney(payroll.totalDeductions)}
                   </div>
                   <p className="mt-1 text-xs text-muted-foreground">
@@ -706,15 +718,17 @@ export function DashboardPage() {
               </Card>
 
               {/* Net Disbursed */}
-              <Card className="border-emerald-500/30">
+              <Card className="interactive-card border-t-2 border-t-emerald-500 group animate-fade-in-up stagger-3">
                 <CardHeader className="flex flex-row items-center justify-between pb-2">
-                  <CardTitle className="text-xs font-medium uppercase tracking-wider text-emerald-700 dark:text-emerald-400">
+                  <CardTitle className="text-xs font-semibold uppercase tracking-wider text-emerald-700 dark:text-emerald-400">
                     Net Take-Home
                   </CardTitle>
-                  <CheckCircle2Icon className="h-4 w-4 text-emerald-600" />
+                  <div className="flex size-8 items-center justify-center rounded-lg bg-emerald-500/10 text-emerald-600 ring-1 ring-emerald-500/20 group-hover:scale-110 group-hover:rotate-6 transition-transform duration-200">
+                    <CheckCircle2Icon className="size-4" />
+                  </div>
                 </CardHeader>
                 <CardContent>
-                  <div className="font-mono text-2xl font-bold text-emerald-600 dark:text-emerald-400">
+                  <div className="font-mono text-3xl font-bold tracking-tight text-emerald-600 dark:text-emerald-400">
                     {formatMoney(payroll.netPayroll)}
                   </div>
                   <p className="mt-1 text-xs text-emerald-700/80 dark:text-emerald-400/80">
@@ -724,23 +738,25 @@ export function DashboardPage() {
               </Card>
 
               {/* Unpaid Payslips */}
-              <Card>
+              <Card className="interactive-card border-t-2 border-t-amber-500 group animate-fade-in-up stagger-4">
                 <CardHeader className="flex flex-row items-center justify-between pb-2">
-                  <CardTitle className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                  <CardTitle className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                     Unpaid Payslips
                   </CardTitle>
-                  <AlertTriangleIcon className="h-4 w-4 text-amber-500" />
+                  <div className="flex size-8 items-center justify-center rounded-lg bg-amber-500/10 text-amber-600 ring-1 ring-amber-500/20 group-hover:scale-110 group-hover:rotate-6 transition-transform duration-200">
+                    <AlertTriangleIcon className="size-4" />
+                  </div>
                 </CardHeader>
                 <CardContent>
                   <div className="flex items-center justify-between">
-                    <div className="text-2xl font-bold text-amber-600">
+                    <div className="text-3xl font-bold tracking-tight text-amber-600">
                       {payroll.unpaidPayslipsCount}
                     </div>
                     {payroll.unpaidPayslipsCount > 0 && (
                       <Button
                         variant="outline"
                         size="sm"
-                        className="text-xs"
+                        className="text-xs h-7"
                         render={<Link to="/payslips" />}
                       >
                         Disburse
