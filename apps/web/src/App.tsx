@@ -1,22 +1,44 @@
-import { Button } from "@/components/ui/button"
+import {
+  BrowserRouter,
+  Route,
+  Routes,
+} from "react-router-dom"
+
+import { AuthProvider } from "@/auth/auth-provider"
+import { ProtectedRoute } from "@/auth/protected-route"
+import { AppLayout } from "@/components/layout/app-layout"
+import { DashboardPage } from "@/pages/dashboard-page"
+import { LoginPage } from "@/pages/login-page"
 
 function App() {
   return (
-    <main className="flex min-h-screen items-center justify-center bg-background">
-      <div className="text-center">
-        <h1 className="text-5xl font-bold tracking-tight">
-          PeoplePay360
-        </h1>
+    <BrowserRouter>
+      <AuthProvider>
+        <Routes>
+          <Route
+            path="/login"
+            element={<LoginPage />}
+          />
 
-        <p className="mt-4 text-muted-foreground">
-          HR & Payroll Management System
-        </p>
-
-        <Button className="mt-8">
-          System Ready
-        </Button>
-      </div>
-    </main>
+          <Route
+            element={
+              <ProtectedRoute />
+            }
+          >
+            <Route
+              element={<AppLayout />}
+            >
+              <Route
+                index
+                element={
+                  <DashboardPage />
+                }
+              />
+            </Route>
+          </Route>
+        </Routes>
+      </AuthProvider>
+    </BrowserRouter>
   )
 }
 
