@@ -76,6 +76,39 @@ async function main() {
       console.log("Linked employee record created for employee@peoplepay360.local")
     }
   }
+
+  // Ensure default Leave Types and 2026 Allocations exist for all employees
+  let annualType = await prisma.leaveType.findUnique({ where: { code: "ANNUAL" } })
+  if (!annualType) {
+    annualType = await prisma.leaveType.create({
+      data: { code: "ANNUAL", name: "Annual Leave", isPaid: true, isActive: true },
+    })
+  }
+
+  const allEmployees = await prisma.employee.findMany({ select: { id: true, employeeCode: true } })
+  for (const emp of allEmployees) {
+    const existingAlloc = await prisma.leaveAllocation.findUnique({
+      where: {
+        employeeId_leaveTypeId_year: {
+          employeeId: emp.id,
+          leaveTypeId: annualType.id,
+          year: 2026,
+        },
+      },
+    })
+    if (!existingAlloc) {
+      await prisma.leaveAllocation.create({
+        data: {
+          employeeId: emp.id,
+          leaveTypeId: annualType.id,
+          year: 2026,
+          allocatedDays: 25,
+          usedDays: 0,
+        },
+      })
+      console.log(`Allocated 25 days Annual Leave (2026) for ${emp.employeeCode}`)
+    }
+  }
 }
 
 main()
