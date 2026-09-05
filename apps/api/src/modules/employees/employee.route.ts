@@ -35,6 +35,10 @@ import {
   getEmployeeAttendanceHandler,
 } from "../attendance/attendance.route.js"
 
+import {
+  getEmployeeLeaveBalancesHandler,
+} from "../leave/leave.route.js"
+
 export const employeeRouter = Router()
 
 const DIRECTORY_ROLES = [
@@ -912,4 +916,12 @@ employeeRouter.get(
   "/:employeeId/attendance",
   requireAuth,
   getEmployeeAttendanceHandler,
+)
+
+// GET /api/v1/employees/:employeeId/leave-balances
+// Get leave balances for an employee (ADMIN / HR_MANAGER / PAYROLL_* or self)
+employeeRouter.get(
+  "/:employeeId/leave-balances",
+  requireAuth,
+  getEmployeeLeaveBalancesHandler,
 )

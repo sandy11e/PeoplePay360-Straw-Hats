@@ -67,3 +67,18 @@ export type EmployeeScheduleAssignment = Prisma.EmployeeScheduleAssignmentModel
  * 
  */
 export type Attendance = Prisma.AttendanceModel
+/**
+ * Model LeaveType
+ * 
+ */
+export type LeaveType = Prisma.LeaveTypeModel
+/**
+ * Model LeaveAllocation
+ * 
+ */
+export type LeaveAllocation = Prisma.LeaveAllocationModel
+/**
+ * Model LeaveRequest
+ * 
+ */
+export type LeaveRequest = Prisma.LeaveRequestModel

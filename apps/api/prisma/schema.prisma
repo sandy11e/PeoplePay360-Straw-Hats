@@ -58,6 +58,13 @@ enum AttendanceSource {
   MANUAL
 }
 
+enum LeaveRequestStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  CANCELLED
+}
+
 model User {
   id           String   @id @default(uuid()) @db.Uuid
   email        String   @unique @db.VarChar(320)
@@ -70,8 +77,9 @@ model User {
   createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
   updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(3)
 
-  refreshTokens RefreshToken[]
-  employee      Employee?
+  refreshTokens         RefreshToken[]
+  employee              Employee?
+  reviewedLeaveRequests LeaveRequest[] @relation("LeaveReviewedBy")
 
   @@map("users")
 }
@@ -163,9 +171,11 @@ model Employee {
   manager       Employee?  @relation("EmployeeManager", fields: [managerId], references: [id], onDelete: SetNull)
   directReports Employee[] @relation("EmployeeManager")
 
-  contracts EmployeeContract[]
+  contracts           EmployeeContract[]
   scheduleAssignments EmployeeScheduleAssignment[]
   attendances         Attendance[]
+  leaveAllocations    LeaveAllocation[]
+  leaveRequests       LeaveRequest[]
 
   createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
   updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(3)
@@ -291,4 +301,76 @@ model Attendance {
   @@index([status])
   @@index([checkInAt])
   @@map("attendances")
+}
+
+model LeaveType {
+  id          String   @id @default(uuid()) @db.Uuid
+  code        String   @unique @db.VarChar(30)
+  name        String   @db.VarChar(100)
+  description String?  @db.VarChar(500)
+  isPaid      Boolean  @default(true) @map("is_paid")
+  isActive    Boolean  @default(true) @map("is_active")
+
+  allocations LeaveAllocation[]
+  requests    LeaveRequest[]
+
+  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt   DateTime @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  @@map("leave_types")
+}
+
+model LeaveAllocation {
+  id            String    @id @default(uuid()) @db.Uuid
+
+  employeeId    String    @map("employee_id") @db.Uuid
+  employee      Employee  @relation(fields: [employeeId], references: [id], onDelete: Restrict)
+
+  leaveTypeId   String    @map("leave_type_id") @db.Uuid
+  leaveType     LeaveType @relation(fields: [leaveTypeId], references: [id], onDelete: Restrict)
+
+  year          Int
+  allocatedDays Decimal   @map("allocated_days") @db.Decimal(5, 2)
+  usedDays      Decimal   @default(0) @map("used_days") @db.Decimal(5, 2)
+
+  createdAt     DateTime  @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt     DateTime  @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  @@unique([employeeId, leaveTypeId, year])
+  @@index([employeeId])
+  @@index([leaveTypeId])
+  @@index([year])
+  @@map("leave_allocations")
+}
+
+model LeaveRequest {
+  id               String             @id @default(uuid()) @db.Uuid
+
+  employeeId       String             @map("employee_id") @db.Uuid
+  employee         Employee           @relation(fields: [employeeId], references: [id], onDelete: Restrict)
+
+  leaveTypeId      String             @map("leave_type_id") @db.Uuid
+  leaveType        LeaveType          @relation(fields: [leaveTypeId], references: [id], onDelete: Restrict)
+
+  startDate        DateTime           @map("start_date") @db.Date
+  endDate          DateTime           @map("end_date") @db.Date
+  requestedDays    Decimal            @map("requested_days") @db.Decimal(5, 2)
+
+  reason           String?            @db.VarChar(500)
+  status           LeaveRequestStatus @default(PENDING)
+
+  reviewedByUserId String?            @map("reviewed_by_user_id") @db.Uuid
+  reviewedByUser   User?              @relation("LeaveReviewedBy", fields: [reviewedByUserId], references: [id], onDelete: SetNull)
+  reviewedAt       DateTime?          @map("reviewed_at") @db.Timestamptz(3)
+  reviewComment    String?            @map("review_comment") @db.VarChar(500)
+
+  createdAt        DateTime           @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt        DateTime           @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  @@index([employeeId])
+  @@index([leaveTypeId])
+  @@index([status])
+  @@index([startDate])
+  @@index([endDate])
+  @@map("leave_requests")
 }
