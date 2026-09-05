@@ -22,6 +22,24 @@ const envSchema = z.object({
   DATABASE_URL: z
     .string()
     .min(1, "DATABASE_URL is required"),
+
+  JWT_ACCESS_SECRET: z
+    .string()
+    .min(32, "JWT_ACCESS_SECRET must be at least 32 characters"),
+
+  ACCESS_TOKEN_TTL_MINUTES: z.coerce
+    .number()
+    .int()
+    .positive()
+    .max(60)
+    .default(15),
+
+  REFRESH_TOKEN_TTL_DAYS: z.coerce
+    .number()
+    .int()
+    .positive()
+    .max(30)
+    .default(7),
 })
 
 const result = envSchema.safeParse(process.env)

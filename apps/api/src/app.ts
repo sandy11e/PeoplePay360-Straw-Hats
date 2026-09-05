@@ -1,8 +1,11 @@
+import cookieParser from "cookie-parser"
 import cors from "cors"
 import express from "express"
 import helmet from "helmet"
 
+import { authRouter } from "./auth/auth.route.js"
 import { env } from "./config/env.js"
+import { errorHandler } from "./middleware/error.middleware.js"
 import { healthRouter } from "./routes/health.route.js"
 
 export const app = express()
@@ -18,9 +21,21 @@ app.use(
   }),
 )
 
-app.use(express.json({ limit: "1mb" }))
+app.use(express.json({
+  limit: "1mb",
+}))
 
-app.use("/api/v1/health", healthRouter)
+app.use(cookieParser())
+
+app.use(
+  "/api/v1/health",
+  healthRouter,
+)
+
+app.use(
+  "/api/v1/auth",
+  authRouter,
+)
 
 app.use((_request, response) => {
   response.status(404).json({
@@ -30,3 +45,5 @@ app.use((_request, response) => {
     },
   })
 })
+
+app.use(errorHandler)
