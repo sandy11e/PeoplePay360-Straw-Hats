@@ -62,3 +62,10 @@ export const PAYROLL_ACCESS = [
   UserRole.PAYROLL_MANAGER,
   UserRole.PAYROLL_USER,
 ]
+
+export const SCHEDULE_READ_ACCESS = [
+  UserRole.ADMIN,
+  UserRole.HR_MANAGER,
+  UserRole.PAYROLL_MANAGER,
+  UserRole.PAYROLL_USER,
+]

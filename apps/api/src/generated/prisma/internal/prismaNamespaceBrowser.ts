@@ -56,7 +56,11 @@ export const ModelName = {
   Department: 'Department',
   JobPosition: 'JobPosition',
   Employee: 'Employee',
-  EmployeeContract: 'EmployeeContract'
+  EmployeeContract: 'EmployeeContract',
+  WorkSchedule: 'WorkSchedule',
+  WorkScheduleDay: 'WorkScheduleDay',
+  EmployeeScheduleAssignment: 'EmployeeScheduleAssignment',
+  Attendance: 'Attendance'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -164,6 +168,63 @@ export const EmployeeContractScalarFieldEnum = {
 } as const
 
 export type EmployeeContractScalarFieldEnum = (typeof EmployeeContractScalarFieldEnum)[keyof typeof EmployeeContractScalarFieldEnum]
+
+
+export const WorkScheduleScalarFieldEnum = {
+  id: 'id',
+  code: 'code',
+  name: 'name',
+  timezone: 'timezone',
+  isActive: 'isActive',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type WorkScheduleScalarFieldEnum = (typeof WorkScheduleScalarFieldEnum)[keyof typeof WorkScheduleScalarFieldEnum]
+
+
+export const WorkScheduleDayScalarFieldEnum = {
+  id: 'id',
+  scheduleId: 'scheduleId',
+  dayOfWeek: 'dayOfWeek',
+  isWorkingDay: 'isWorkingDay',
+  startTime: 'startTime',
+  endTime: 'endTime',
+  breakMinutes: 'breakMinutes',
+  expectedMinutes: 'expectedMinutes'
+} as const
+
+export type WorkScheduleDayScalarFieldEnum = (typeof WorkScheduleDayScalarFieldEnum)[keyof typeof WorkScheduleDayScalarFieldEnum]
+
+
+export const EmployeeScheduleAssignmentScalarFieldEnum = {
+  id: 'id',
+  employeeId: 'employeeId',
+  scheduleId: 'scheduleId',
+  effectiveFrom: 'effectiveFrom',
+  effectiveTo: 'effectiveTo',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type EmployeeScheduleAssignmentScalarFieldEnum = (typeof EmployeeScheduleAssignmentScalarFieldEnum)[keyof typeof EmployeeScheduleAssignmentScalarFieldEnum]
+
+
+export const AttendanceScalarFieldEnum = {
+  id: 'id',
+  employeeId: 'employeeId',
+  attendanceDate: 'attendanceDate',
+  checkInAt: 'checkInAt',
+  checkOutAt: 'checkOutAt',
+  workedMinutes: 'workedMinutes',
+  status: 'status',
+  source: 'source',
+  notes: 'notes',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type AttendanceScalarFieldEnum = (typeof AttendanceScalarFieldEnum)[keyof typeof AttendanceScalarFieldEnum]
 
 
 export const SortOrder = {

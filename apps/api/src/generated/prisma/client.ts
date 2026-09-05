@@ -71,3 +71,23 @@ export type Employee = Prisma.EmployeeModel
  * 
  */
 export type EmployeeContract = Prisma.EmployeeContractModel
+/**
+ * Model WorkSchedule
+ * 
+ */
+export type WorkSchedule = Prisma.WorkScheduleModel
+/**
+ * Model WorkScheduleDay
+ * 
+ */
+export type WorkScheduleDay = Prisma.WorkScheduleDayModel
+/**
+ * Model EmployeeScheduleAssignment
+ * 
+ */
+export type EmployeeScheduleAssignment = Prisma.EmployeeScheduleAssignmentModel
+/**
+ * Model Attendance
+ * 
+ */
+export type Attendance = Prisma.AttendanceModel

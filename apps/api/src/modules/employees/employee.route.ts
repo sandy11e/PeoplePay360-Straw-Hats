@@ -1,7 +1,11 @@
 import { Router } from "express"
 
 import { requireAuth } from "../../auth/auth.middleware.js"
-import { requireRole } from "../../auth/auth.roles.js"
+import {
+  HR_ACCESS,
+  requireRole,
+  SCHEDULE_READ_ACCESS,
+} from "../../auth/auth.roles.js"
 import { UserRole } from "../../generated/prisma/enums.js"
 import { prisma } from "../../lib/prisma.js"
 
@@ -21,6 +25,15 @@ import {
   employeeContractListQuerySchema,
   employeeIdParamSchema as contractEmployeeIdParamSchema,
 } from "../contracts/contract.schema.js"
+
+import {
+  assignEmployeeScheduleHandler,
+  getEmployeeSchedulesHandler,
+} from "../work-schedules/work-schedule.route.js"
+
+import {
+  getEmployeeAttendanceHandler,
+} from "../attendance/attendance.route.js"
 
 export const employeeRouter = Router()
 
@@ -873,4 +886,30 @@ employeeRouter.get(
       },
     })
   },
+)
+
+// POST /api/v1/employees/:employeeId/work-schedules
+// Assign a work schedule to an employee (ADMIN / HR_MANAGER only)
+employeeRouter.post(
+  "/:employeeId/work-schedules",
+  requireAuth,
+  requireRole(...HR_ACCESS),
+  assignEmployeeScheduleHandler,
+)
+
+// GET /api/v1/employees/:employeeId/work-schedules
+// Get work schedules assigned to an employee (ADMIN / HR_MANAGER / PAYROLL_* only)
+employeeRouter.get(
+  "/:employeeId/work-schedules",
+  requireAuth,
+  requireRole(...SCHEDULE_READ_ACCESS),
+  getEmployeeSchedulesHandler,
+)
+
+// GET /api/v1/employees/:employeeId/attendance
+// Get attendance records for an employee (ADMIN / HR_MANAGER / PAYROLL_* or self)
+employeeRouter.get(
+  "/:employeeId/attendance",
+  requireAuth,
+  getEmployeeAttendanceHandler,
 )

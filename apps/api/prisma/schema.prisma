@@ -34,6 +34,30 @@ enum ContractStatus {
   CANCELLED
 }
 
+enum DayOfWeek {
+  MONDAY
+  TUESDAY
+  WEDNESDAY
+  THURSDAY
+  FRIDAY
+  SATURDAY
+  SUNDAY
+}
+
+enum AttendanceStatus {
+  PRESENT
+  LATE
+  ABSENT
+  HALF_DAY
+  ON_LEAVE
+}
+
+enum AttendanceSource {
+  WEB
+  KIOSK
+  MANUAL
+}
+
 model User {
   id           String   @id @default(uuid()) @db.Uuid
   email        String   @unique @db.VarChar(320)
@@ -140,6 +164,8 @@ model Employee {
   directReports Employee[] @relation("EmployeeManager")
 
   contracts EmployeeContract[]
+  scheduleAssignments EmployeeScheduleAssignment[]
+  attendances         Attendance[]
 
   createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
   updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(3)
@@ -178,4 +204,91 @@ model EmployeeContract {
   @@index([startDate])
   @@index([endDate])
   @@map("employee_contracts")
+}
+
+model WorkSchedule {
+  id String @id @default(uuid()) @db.Uuid
+
+  code     String  @unique @db.VarChar(30)
+  name     String  @db.VarChar(120)
+  timezone String  @default("UTC") @db.VarChar(50)
+  isActive Boolean @default(true) @map("is_active")
+
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  days        WorkScheduleDay[]
+  assignments EmployeeScheduleAssignment[]
+
+  @@map("work_schedules")
+}
+
+model WorkScheduleDay {
+  id String @id @default(uuid()) @db.Uuid
+
+  scheduleId String       @map("schedule_id") @db.Uuid
+  schedule   WorkSchedule @relation(fields: [scheduleId], references: [id], onDelete: Cascade)
+
+  dayOfWeek    DayOfWeek @map("day_of_week")
+  isWorkingDay Boolean   @default(true) @map("is_working_day")
+
+  startTime String? @map("start_time") @db.VarChar(5)
+  endTime   String? @map("end_time") @db.VarChar(5)
+
+  breakMinutes    Int @default(0) @map("break_minutes")
+  expectedMinutes Int @default(0) @map("expected_minutes")
+
+  @@unique([scheduleId, dayOfWeek])
+  @@index([scheduleId])
+  @@map("work_schedule_days")
+}
+
+model EmployeeScheduleAssignment {
+  id String @id @default(uuid()) @db.Uuid
+
+  employeeId String   @map("employee_id") @db.Uuid
+  employee   Employee @relation(fields: [employeeId], references: [id], onDelete: Restrict)
+
+  scheduleId String       @map("schedule_id") @db.Uuid
+  schedule   WorkSchedule @relation(fields: [scheduleId], references: [id], onDelete: Restrict)
+
+  effectiveFrom DateTime  @map("effective_from") @db.Date
+  effectiveTo   DateTime? @map("effective_to") @db.Date
+
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  @@index([employeeId])
+  @@index([scheduleId])
+  @@index([effectiveFrom])
+  @@index([effectiveTo])
+  @@map("employee_schedule_assignments")
+}
+
+model Attendance {
+  id String @id @default(uuid()) @db.Uuid
+
+  employeeId String   @map("employee_id") @db.Uuid
+  employee   Employee @relation(fields: [employeeId], references: [id], onDelete: Restrict)
+
+  attendanceDate DateTime @map("attendance_date") @db.Date
+
+  checkInAt  DateTime  @map("check_in_at") @db.Timestamptz(3)
+  checkOutAt DateTime? @map("check_out_at") @db.Timestamptz(3)
+
+  workedMinutes Int? @map("worked_minutes")
+
+  status AttendanceStatus @default(PRESENT)
+  source AttendanceSource @default(WEB)
+
+  notes String? @db.VarChar(500)
+
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  @@index([employeeId])
+  @@index([attendanceDate])
+  @@index([status])
+  @@index([checkInAt])
+  @@map("attendances")
 }
