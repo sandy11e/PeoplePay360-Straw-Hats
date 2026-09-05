@@ -84,3 +84,27 @@ export const LeaveRequestStatus = {
 } as const
 
 export type LeaveRequestStatus = (typeof LeaveRequestStatus)[keyof typeof LeaveRequestStatus]
+
+
+export const SalaryRuleCategory = {
+  EARNING: 'EARNING',
+  DEDUCTION: 'DEDUCTION'
+} as const
+
+export type SalaryRuleCategory = (typeof SalaryRuleCategory)[keyof typeof SalaryRuleCategory]
+
+
+export const SalaryRuleCalculationType = {
+  FIXED: 'FIXED',
+  PERCENTAGE: 'PERCENTAGE'
+} as const
+
+export type SalaryRuleCalculationType = (typeof SalaryRuleCalculationType)[keyof typeof SalaryRuleCalculationType]
+
+
+export const SalaryRuleBase = {
+  BASE_SALARY: 'BASE_SALARY',
+  GROSS_EARNINGS: 'GROSS_EARNINGS'
+} as const
+
+export type SalaryRuleBase = (typeof SalaryRuleBase)[keyof typeof SalaryRuleBase]

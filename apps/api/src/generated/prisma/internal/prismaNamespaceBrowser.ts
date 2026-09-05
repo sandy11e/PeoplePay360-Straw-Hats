@@ -63,7 +63,10 @@ export const ModelName = {
   Attendance: 'Attendance',
   LeaveType: 'LeaveType',
   LeaveAllocation: 'LeaveAllocation',
-  LeaveRequest: 'LeaveRequest'
+  LeaveRequest: 'LeaveRequest',
+  SalaryStructure: 'SalaryStructure',
+  SalaryRule: 'SalaryRule',
+  EmployeeSalaryStructureAssignment: 'EmployeeSalaryStructureAssignment'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -275,6 +278,52 @@ export const LeaveRequestScalarFieldEnum = {
 } as const
 
 export type LeaveRequestScalarFieldEnum = (typeof LeaveRequestScalarFieldEnum)[keyof typeof LeaveRequestScalarFieldEnum]
+
+
+export const SalaryStructureScalarFieldEnum = {
+  id: 'id',
+  code: 'code',
+  name: 'name',
+  description: 'description',
+  isActive: 'isActive',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type SalaryStructureScalarFieldEnum = (typeof SalaryStructureScalarFieldEnum)[keyof typeof SalaryStructureScalarFieldEnum]
+
+
+export const SalaryRuleScalarFieldEnum = {
+  id: 'id',
+  structureId: 'structureId',
+  code: 'code',
+  name: 'name',
+  category: 'category',
+  calculationType: 'calculationType',
+  amount: 'amount',
+  percentage: 'percentage',
+  base: 'base',
+  sequence: 'sequence',
+  isTaxable: 'isTaxable',
+  isActive: 'isActive',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type SalaryRuleScalarFieldEnum = (typeof SalaryRuleScalarFieldEnum)[keyof typeof SalaryRuleScalarFieldEnum]
+
+
+export const EmployeeSalaryStructureAssignmentScalarFieldEnum = {
+  id: 'id',
+  employeeId: 'employeeId',
+  structureId: 'structureId',
+  effectiveFrom: 'effectiveFrom',
+  effectiveTo: 'effectiveTo',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type EmployeeSalaryStructureAssignmentScalarFieldEnum = (typeof EmployeeSalaryStructureAssignmentScalarFieldEnum)[keyof typeof EmployeeSalaryStructureAssignmentScalarFieldEnum]
 
 
 export const SortOrder = {

@@ -402,6 +402,84 @@ export type EnumLeaveRequestStatusWithAggregatesFilter<$PrismaModel = never> = {
   _max?: Prisma.NestedEnumLeaveRequestStatusFilter<$PrismaModel>
 }
 
+export type EnumSalaryRuleCategoryFilter<$PrismaModel = never> = {
+  equals?: $Enums.SalaryRuleCategory | Prisma.EnumSalaryRuleCategoryFieldRefInput<$PrismaModel>
+  in?: $Enums.SalaryRuleCategory[] | Prisma.ListEnumSalaryRuleCategoryFieldRefInput<$PrismaModel>
+  notIn?: $Enums.SalaryRuleCategory[] | Prisma.ListEnumSalaryRuleCategoryFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumSalaryRuleCategoryFilter<$PrismaModel> | $Enums.SalaryRuleCategory
+}
+
+export type EnumSalaryRuleCalculationTypeFilter<$PrismaModel = never> = {
+  equals?: $Enums.SalaryRuleCalculationType | Prisma.EnumSalaryRuleCalculationTypeFieldRefInput<$PrismaModel>
+  in?: $Enums.SalaryRuleCalculationType[] | Prisma.ListEnumSalaryRuleCalculationTypeFieldRefInput<$PrismaModel>
+  notIn?: $Enums.SalaryRuleCalculationType[] | Prisma.ListEnumSalaryRuleCalculationTypeFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumSalaryRuleCalculationTypeFilter<$PrismaModel> | $Enums.SalaryRuleCalculationType
+}
+
+export type DecimalNullableFilter<$PrismaModel = never> = {
+  equals?: runtime.Decimal | runtime.DecimalJsLike | number | string | Prisma.DecimalFieldRefInput<$PrismaModel> | null
+  in?: runtime.Decimal[] | runtime.DecimalJsLike[] | number[] | string[] | Prisma.ListDecimalFieldRefInput<$PrismaModel> | null
+  notIn?: runtime.Decimal[] | runtime.DecimalJsLike[] | number[] | string[] | Prisma.ListDecimalFieldRefInput<$PrismaModel> | null
+  lt?: runtime.Decimal | runtime.DecimalJsLike | number | string | Prisma.DecimalFieldRefInput<$PrismaModel>
+  lte?: runtime.Decimal | runtime.DecimalJsLike | number | string | Prisma.DecimalFieldRefInput<$PrismaModel>
+  gt?: runtime.Decimal | runtime.DecimalJsLike | number | string | Prisma.DecimalFieldRefInput<$PrismaModel>
+  gte?: runtime.Decimal | runtime.DecimalJsLike | number | string | Prisma.DecimalFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedDecimalNullableFilter<$PrismaModel> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+}
+
+export type EnumSalaryRuleBaseNullableFilter<$PrismaModel = never> = {
+  equals?: $Enums.SalaryRuleBase | Prisma.EnumSalaryRuleBaseFieldRefInput<$PrismaModel> | null
+  in?: $Enums.SalaryRuleBase[] | Prisma.ListEnumSalaryRuleBaseFieldRefInput<$PrismaModel> | null
+  notIn?: $Enums.SalaryRuleBase[] | Prisma.ListEnumSalaryRuleBaseFieldRefInput<$PrismaModel> | null
+  not?: Prisma.NestedEnumSalaryRuleBaseNullableFilter<$PrismaModel> | $Enums.SalaryRuleBase | null
+}
+
+export type EnumSalaryRuleCategoryWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.SalaryRuleCategory | Prisma.EnumSalaryRuleCategoryFieldRefInput<$PrismaModel>
+  in?: $Enums.SalaryRuleCategory[] | Prisma.ListEnumSalaryRuleCategoryFieldRefInput<$PrismaModel>
+  notIn?: $Enums.SalaryRuleCategory[] | Prisma.ListEnumSalaryRuleCategoryFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumSalaryRuleCategoryWithAggregatesFilter<$PrismaModel> | $Enums.SalaryRuleCategory
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumSalaryRuleCategoryFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumSalaryRuleCategoryFilter<$PrismaModel>
+}
+
+export type EnumSalaryRuleCalculationTypeWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.SalaryRuleCalculationType | Prisma.EnumSalaryRuleCalculationTypeFieldRefInput<$PrismaModel>
+  in?: $Enums.SalaryRuleCalculationType[] | Prisma.ListEnumSalaryRuleCalculationTypeFieldRefInput<$PrismaModel>
+  notIn?: $Enums.SalaryRuleCalculationType[] | Prisma.ListEnumSalaryRuleCalculationTypeFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumSalaryRuleCalculationTypeWithAggregatesFilter<$PrismaModel> | $Enums.SalaryRuleCalculationType
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumSalaryRuleCalculationTypeFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumSalaryRuleCalculationTypeFilter<$PrismaModel>
+}
+
+export type DecimalNullableWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: runtime.Decimal | runtime.DecimalJsLike | number | string | Prisma.DecimalFieldRefInput<$PrismaModel> | null
+  in?: runtime.Decimal[] | runtime.DecimalJsLike[] | number[] | string[] | Prisma.ListDecimalFieldRefInput<$PrismaModel> | null
+  notIn?: runtime.Decimal[] | runtime.DecimalJsLike[] | number[] | string[] | Prisma.ListDecimalFieldRefInput<$PrismaModel> | null
+  lt?: runtime.Decimal | runtime.DecimalJsLike | number | string | Prisma.DecimalFieldRefInput<$PrismaModel>
+  lte?: runtime.Decimal | runtime.DecimalJsLike | number | string | Prisma.DecimalFieldRefInput<$PrismaModel>
+  gt?: runtime.Decimal | runtime.DecimalJsLike | number | string | Prisma.DecimalFieldRefInput<$PrismaModel>
+  gte?: runtime.Decimal | runtime.DecimalJsLike | number | string | Prisma.DecimalFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedDecimalNullableWithAggregatesFilter<$PrismaModel> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  _count?: Prisma.NestedIntNullableFilter<$PrismaModel>
+  _avg?: Prisma.NestedDecimalNullableFilter<$PrismaModel>
+  _sum?: Prisma.NestedDecimalNullableFilter<$PrismaModel>
+  _min?: Prisma.NestedDecimalNullableFilter<$PrismaModel>
+  _max?: Prisma.NestedDecimalNullableFilter<$PrismaModel>
+}
+
+export type EnumSalaryRuleBaseNullableWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.SalaryRuleBase | Prisma.EnumSalaryRuleBaseFieldRefInput<$PrismaModel> | null
+  in?: $Enums.SalaryRuleBase[] | Prisma.ListEnumSalaryRuleBaseFieldRefInput<$PrismaModel> | null
+  notIn?: $Enums.SalaryRuleBase[] | Prisma.ListEnumSalaryRuleBaseFieldRefInput<$PrismaModel> | null
+  not?: Prisma.NestedEnumSalaryRuleBaseNullableWithAggregatesFilter<$PrismaModel> | $Enums.SalaryRuleBase | null
+  _count?: Prisma.NestedIntNullableFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumSalaryRuleBaseNullableFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumSalaryRuleBaseNullableFilter<$PrismaModel>
+}
+
 export type NestedUuidFilter<$PrismaModel = never> = {
   equals?: string | Prisma.StringFieldRefInput<$PrismaModel>
   in?: string[] | Prisma.ListStringFieldRefInput<$PrismaModel>
@@ -797,6 +875,84 @@ export type NestedEnumLeaveRequestStatusWithAggregatesFilter<$PrismaModel = neve
   _count?: Prisma.NestedIntFilter<$PrismaModel>
   _min?: Prisma.NestedEnumLeaveRequestStatusFilter<$PrismaModel>
   _max?: Prisma.NestedEnumLeaveRequestStatusFilter<$PrismaModel>
+}
+
+export type NestedEnumSalaryRuleCategoryFilter<$PrismaModel = never> = {
+  equals?: $Enums.SalaryRuleCategory | Prisma.EnumSalaryRuleCategoryFieldRefInput<$PrismaModel>
+  in?: $Enums.SalaryRuleCategory[] | Prisma.ListEnumSalaryRuleCategoryFieldRefInput<$PrismaModel>
+  notIn?: $Enums.SalaryRuleCategory[] | Prisma.ListEnumSalaryRuleCategoryFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumSalaryRuleCategoryFilter<$PrismaModel> | $Enums.SalaryRuleCategory
+}
+
+export type NestedEnumSalaryRuleCalculationTypeFilter<$PrismaModel = never> = {
+  equals?: $Enums.SalaryRuleCalculationType | Prisma.EnumSalaryRuleCalculationTypeFieldRefInput<$PrismaModel>
+  in?: $Enums.SalaryRuleCalculationType[] | Prisma.ListEnumSalaryRuleCalculationTypeFieldRefInput<$PrismaModel>
+  notIn?: $Enums.SalaryRuleCalculationType[] | Prisma.ListEnumSalaryRuleCalculationTypeFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumSalaryRuleCalculationTypeFilter<$PrismaModel> | $Enums.SalaryRuleCalculationType
+}
+
+export type NestedDecimalNullableFilter<$PrismaModel = never> = {
+  equals?: runtime.Decimal | runtime.DecimalJsLike | number | string | Prisma.DecimalFieldRefInput<$PrismaModel> | null
+  in?: runtime.Decimal[] | runtime.DecimalJsLike[] | number[] | string[] | Prisma.ListDecimalFieldRefInput<$PrismaModel> | null
+  notIn?: runtime.Decimal[] | runtime.DecimalJsLike[] | number[] | string[] | Prisma.ListDecimalFieldRefInput<$PrismaModel> | null
+  lt?: runtime.Decimal | runtime.DecimalJsLike | number | string | Prisma.DecimalFieldRefInput<$PrismaModel>
+  lte?: runtime.Decimal | runtime.DecimalJsLike | number | string | Prisma.DecimalFieldRefInput<$PrismaModel>
+  gt?: runtime.Decimal | runtime.DecimalJsLike | number | string | Prisma.DecimalFieldRefInput<$PrismaModel>
+  gte?: runtime.Decimal | runtime.DecimalJsLike | number | string | Prisma.DecimalFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedDecimalNullableFilter<$PrismaModel> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+}
+
+export type NestedEnumSalaryRuleBaseNullableFilter<$PrismaModel = never> = {
+  equals?: $Enums.SalaryRuleBase | Prisma.EnumSalaryRuleBaseFieldRefInput<$PrismaModel> | null
+  in?: $Enums.SalaryRuleBase[] | Prisma.ListEnumSalaryRuleBaseFieldRefInput<$PrismaModel> | null
+  notIn?: $Enums.SalaryRuleBase[] | Prisma.ListEnumSalaryRuleBaseFieldRefInput<$PrismaModel> | null
+  not?: Prisma.NestedEnumSalaryRuleBaseNullableFilter<$PrismaModel> | $Enums.SalaryRuleBase | null
+}
+
+export type NestedEnumSalaryRuleCategoryWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.SalaryRuleCategory | Prisma.EnumSalaryRuleCategoryFieldRefInput<$PrismaModel>
+  in?: $Enums.SalaryRuleCategory[] | Prisma.ListEnumSalaryRuleCategoryFieldRefInput<$PrismaModel>
+  notIn?: $Enums.SalaryRuleCategory[] | Prisma.ListEnumSalaryRuleCategoryFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumSalaryRuleCategoryWithAggregatesFilter<$PrismaModel> | $Enums.SalaryRuleCategory
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumSalaryRuleCategoryFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumSalaryRuleCategoryFilter<$PrismaModel>
+}
+
+export type NestedEnumSalaryRuleCalculationTypeWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.SalaryRuleCalculationType | Prisma.EnumSalaryRuleCalculationTypeFieldRefInput<$PrismaModel>
+  in?: $Enums.SalaryRuleCalculationType[] | Prisma.ListEnumSalaryRuleCalculationTypeFieldRefInput<$PrismaModel>
+  notIn?: $Enums.SalaryRuleCalculationType[] | Prisma.ListEnumSalaryRuleCalculationTypeFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumSalaryRuleCalculationTypeWithAggregatesFilter<$PrismaModel> | $Enums.SalaryRuleCalculationType
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumSalaryRuleCalculationTypeFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumSalaryRuleCalculationTypeFilter<$PrismaModel>
+}
+
+export type NestedDecimalNullableWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: runtime.Decimal | runtime.DecimalJsLike | number | string | Prisma.DecimalFieldRefInput<$PrismaModel> | null
+  in?: runtime.Decimal[] | runtime.DecimalJsLike[] | number[] | string[] | Prisma.ListDecimalFieldRefInput<$PrismaModel> | null
+  notIn?: runtime.Decimal[] | runtime.DecimalJsLike[] | number[] | string[] | Prisma.ListDecimalFieldRefInput<$PrismaModel> | null
+  lt?: runtime.Decimal | runtime.DecimalJsLike | number | string | Prisma.DecimalFieldRefInput<$PrismaModel>
+  lte?: runtime.Decimal | runtime.DecimalJsLike | number | string | Prisma.DecimalFieldRefInput<$PrismaModel>
+  gt?: runtime.Decimal | runtime.DecimalJsLike | number | string | Prisma.DecimalFieldRefInput<$PrismaModel>
+  gte?: runtime.Decimal | runtime.DecimalJsLike | number | string | Prisma.DecimalFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedDecimalNullableWithAggregatesFilter<$PrismaModel> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  _count?: Prisma.NestedIntNullableFilter<$PrismaModel>
+  _avg?: Prisma.NestedDecimalNullableFilter<$PrismaModel>
+  _sum?: Prisma.NestedDecimalNullableFilter<$PrismaModel>
+  _min?: Prisma.NestedDecimalNullableFilter<$PrismaModel>
+  _max?: Prisma.NestedDecimalNullableFilter<$PrismaModel>
+}
+
+export type NestedEnumSalaryRuleBaseNullableWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.SalaryRuleBase | Prisma.EnumSalaryRuleBaseFieldRefInput<$PrismaModel> | null
+  in?: $Enums.SalaryRuleBase[] | Prisma.ListEnumSalaryRuleBaseFieldRefInput<$PrismaModel> | null
+  notIn?: $Enums.SalaryRuleBase[] | Prisma.ListEnumSalaryRuleBaseFieldRefInput<$PrismaModel> | null
+  not?: Prisma.NestedEnumSalaryRuleBaseNullableWithAggregatesFilter<$PrismaModel> | $Enums.SalaryRuleBase | null
+  _count?: Prisma.NestedIntNullableFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumSalaryRuleBaseNullableFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumSalaryRuleBaseNullableFilter<$PrismaModel>
 }
 
 

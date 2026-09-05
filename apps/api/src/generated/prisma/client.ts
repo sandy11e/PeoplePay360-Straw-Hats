@@ -106,3 +106,18 @@ export type LeaveAllocation = Prisma.LeaveAllocationModel
  * 
  */
 export type LeaveRequest = Prisma.LeaveRequestModel
+/**
+ * Model SalaryStructure
+ * 
+ */
+export type SalaryStructure = Prisma.SalaryStructureModel
+/**
+ * Model SalaryRule
+ * 
+ */
+export type SalaryRule = Prisma.SalaryRuleModel
+/**
+ * Model EmployeeSalaryStructureAssignment
+ * 
+ */
+export type EmployeeSalaryStructureAssignment = Prisma.EmployeeSalaryStructureAssignmentModel

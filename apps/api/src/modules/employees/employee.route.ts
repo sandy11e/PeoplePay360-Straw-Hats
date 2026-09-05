@@ -3,7 +3,9 @@ import { Router } from "express"
 import { requireAuth } from "../../auth/auth.middleware.js"
 import {
   HR_ACCESS,
+  PAYROLL_MANAGE_ACCESS,
   requireRole,
+  SALARY_ASSIGNMENT_READ_ACCESS,
   SCHEDULE_READ_ACCESS,
 } from "../../auth/auth.roles.js"
 import { UserRole } from "../../generated/prisma/enums.js"
@@ -38,6 +40,11 @@ import {
 import {
   getEmployeeLeaveBalancesHandler,
 } from "../leave/leave.route.js"
+
+import {
+  assignEmployeeSalaryStructureHandler,
+  getEmployeeSalaryStructuresHandler,
+} from "../salary-structures/salary-structure.route.js"
 
 export const employeeRouter = Router()
 
@@ -924,4 +931,22 @@ employeeRouter.get(
   "/:employeeId/leave-balances",
   requireAuth,
   getEmployeeLeaveBalancesHandler,
+)
+
+// POST /api/v1/employees/:employeeId/salary-structures
+// Assign a salary structure to an employee (ADMIN / PAYROLL_MANAGER only)
+employeeRouter.post(
+  "/:employeeId/salary-structures",
+  requireAuth,
+  requireRole(...PAYROLL_MANAGE_ACCESS),
+  assignEmployeeSalaryStructureHandler,
+)
+
+// GET /api/v1/employees/:employeeId/salary-structures
+// Get salary structure assignments for an employee (ADMIN / PAYROLL_MANAGER / PAYROLL_USER / HR_MANAGER)
+employeeRouter.get(
+  "/:employeeId/salary-structures",
+  requireAuth,
+  requireRole(...SALARY_ASSIGNMENT_READ_ACCESS),
+  getEmployeeSalaryStructuresHandler,
 )

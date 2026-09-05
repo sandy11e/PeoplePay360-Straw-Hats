@@ -69,3 +69,21 @@ export const SCHEDULE_READ_ACCESS = [
   UserRole.PAYROLL_MANAGER,
   UserRole.PAYROLL_USER,
 ]
+
+export const PAYROLL_MANAGE_ACCESS = [
+  UserRole.ADMIN,
+  UserRole.PAYROLL_MANAGER,
+]
+
+export const PAYROLL_READ_ACCESS = [
+  UserRole.ADMIN,
+  UserRole.PAYROLL_MANAGER,
+  UserRole.PAYROLL_USER,
+]
+
+export const SALARY_ASSIGNMENT_READ_ACCESS = [
+  UserRole.ADMIN,
+  UserRole.PAYROLL_MANAGER,
+  UserRole.PAYROLL_USER,
+  UserRole.HR_MANAGER,
+]
