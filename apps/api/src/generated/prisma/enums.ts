@@ -18,3 +18,15 @@ export const UserRole = {
 } as const
 
 export type UserRole = (typeof UserRole)[keyof typeof UserRole]
+
+
+export const EmploymentStatus = {
+  ACTIVE: 'ACTIVE',
+  ON_LEAVE: 'ON_LEAVE',
+  NOTICE_PERIOD: 'NOTICE_PERIOD',
+  RESIGNED: 'RESIGNED',
+  TERMINATED: 'TERMINATED',
+  INACTIVE: 'INACTIVE'
+} as const
+
+export type EmploymentStatus = (typeof EmploymentStatus)[keyof typeof EmploymentStatus]
