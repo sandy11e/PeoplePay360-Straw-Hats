@@ -118,3 +118,21 @@ export const PayrunStatus = {
 } as const
 
 export type PayrunStatus = (typeof PayrunStatus)[keyof typeof PayrunStatus]
+
+
+export const PaymentStatus = {
+  UNPAID: 'UNPAID',
+  PROCESSING: 'PROCESSING',
+  PAID: 'PAID',
+  FAILED: 'FAILED'
+} as const
+
+export type PaymentStatus = (typeof PaymentStatus)[keyof typeof PaymentStatus]
+
+
+export const PayslipStatus = {
+  DRAFT: 'DRAFT',
+  FINAL: 'FINAL'
+} as const
+
+export type PayslipStatus = (typeof PayslipStatus)[keyof typeof PayslipStatus]

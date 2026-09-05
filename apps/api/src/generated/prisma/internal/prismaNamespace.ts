@@ -414,7 +414,9 @@ export const ModelName = {
   SalaryRule: 'SalaryRule',
   EmployeeSalaryStructureAssignment: 'EmployeeSalaryStructureAssignment',
   Payrun: 'Payrun',
-  PayrunEmployee: 'PayrunEmployee'
+  PayrunEmployee: 'PayrunEmployee',
+  Payslip: 'Payslip',
+  PayslipLine: 'PayslipLine'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -430,7 +432,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "refreshToken" | "department" | "jobPosition" | "employee" | "employeeContract" | "workSchedule" | "workScheduleDay" | "employeeScheduleAssignment" | "attendance" | "leaveType" | "leaveAllocation" | "leaveRequest" | "salaryStructure" | "salaryRule" | "employeeSalaryStructureAssignment" | "payrun" | "payrunEmployee"
+    modelProps: "user" | "refreshToken" | "department" | "jobPosition" | "employee" | "employeeContract" | "workSchedule" | "workScheduleDay" | "employeeScheduleAssignment" | "attendance" | "leaveType" | "leaveAllocation" | "leaveRequest" | "salaryStructure" | "salaryRule" | "employeeSalaryStructureAssignment" | "payrun" | "payrunEmployee" | "payslip" | "payslipLine"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -1766,6 +1768,154 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    Payslip: {
+      payload: Prisma.$PayslipPayload<ExtArgs>
+      fields: Prisma.PayslipFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.PayslipFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PayslipPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.PayslipFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PayslipPayload>
+        }
+        findFirst: {
+          args: Prisma.PayslipFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PayslipPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.PayslipFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PayslipPayload>
+        }
+        findMany: {
+          args: Prisma.PayslipFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PayslipPayload>[]
+        }
+        create: {
+          args: Prisma.PayslipCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PayslipPayload>
+        }
+        createMany: {
+          args: Prisma.PayslipCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.PayslipCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PayslipPayload>[]
+        }
+        delete: {
+          args: Prisma.PayslipDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PayslipPayload>
+        }
+        update: {
+          args: Prisma.PayslipUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PayslipPayload>
+        }
+        deleteMany: {
+          args: Prisma.PayslipDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.PayslipUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.PayslipUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PayslipPayload>[]
+        }
+        upsert: {
+          args: Prisma.PayslipUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PayslipPayload>
+        }
+        aggregate: {
+          args: Prisma.PayslipAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregatePayslip>
+        }
+        groupBy: {
+          args: Prisma.PayslipGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.PayslipGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.PayslipCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.PayslipCountAggregateOutputType> | number
+        }
+      }
+    }
+    PayslipLine: {
+      payload: Prisma.$PayslipLinePayload<ExtArgs>
+      fields: Prisma.PayslipLineFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.PayslipLineFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PayslipLinePayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.PayslipLineFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PayslipLinePayload>
+        }
+        findFirst: {
+          args: Prisma.PayslipLineFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PayslipLinePayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.PayslipLineFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PayslipLinePayload>
+        }
+        findMany: {
+          args: Prisma.PayslipLineFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PayslipLinePayload>[]
+        }
+        create: {
+          args: Prisma.PayslipLineCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PayslipLinePayload>
+        }
+        createMany: {
+          args: Prisma.PayslipLineCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.PayslipLineCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PayslipLinePayload>[]
+        }
+        delete: {
+          args: Prisma.PayslipLineDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PayslipLinePayload>
+        }
+        update: {
+          args: Prisma.PayslipLineUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PayslipLinePayload>
+        }
+        deleteMany: {
+          args: Prisma.PayslipLineDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.PayslipLineUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.PayslipLineUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PayslipLinePayload>[]
+        }
+        upsert: {
+          args: Prisma.PayslipLineUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PayslipLinePayload>
+        }
+        aggregate: {
+          args: Prisma.PayslipLineAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregatePayslipLine>
+        }
+        groupBy: {
+          args: Prisma.PayslipLineGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.PayslipLineGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.PayslipLineCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.PayslipLineCountAggregateOutputType> | number
+        }
+      }
+    }
   }
 } & {
   other: {
@@ -2090,6 +2240,41 @@ export const PayrunEmployeeScalarFieldEnum = {
 export type PayrunEmployeeScalarFieldEnum = (typeof PayrunEmployeeScalarFieldEnum)[keyof typeof PayrunEmployeeScalarFieldEnum]
 
 
+export const PayslipScalarFieldEnum = {
+  id: 'id',
+  payslipNumber: 'payslipNumber',
+  payrunId: 'payrunId',
+  employeeId: 'employeeId',
+  periodStart: 'periodStart',
+  periodEnd: 'periodEnd',
+  baseSalary: 'baseSalary',
+  grossAmount: 'grossAmount',
+  totalDeductions: 'totalDeductions',
+  netAmount: 'netAmount',
+  status: 'status',
+  paymentStatus: 'paymentStatus',
+  generatedAt: 'generatedAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type PayslipScalarFieldEnum = (typeof PayslipScalarFieldEnum)[keyof typeof PayslipScalarFieldEnum]
+
+
+export const PayslipLineScalarFieldEnum = {
+  id: 'id',
+  payslipId: 'payslipId',
+  salaryRuleCode: 'salaryRuleCode',
+  salaryRuleName: 'salaryRuleName',
+  category: 'category',
+  amount: 'amount',
+  sequence: 'sequence',
+  createdAt: 'createdAt'
+} as const
+
+export type PayslipLineScalarFieldEnum = (typeof PayslipLineScalarFieldEnum)[keyof typeof PayslipLineScalarFieldEnum]
+
+
 export const SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -2376,6 +2561,34 @@ export type EnumQueryModeFieldRefInput<$PrismaModel> = FieldRefInputType<$Prisma
 
 
 /**
+ * Reference to a field of type 'PayslipStatus'
+ */
+export type EnumPayslipStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'PayslipStatus'>
+    
+
+
+/**
+ * Reference to a field of type 'PayslipStatus[]'
+ */
+export type ListEnumPayslipStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'PayslipStatus[]'>
+    
+
+
+/**
+ * Reference to a field of type 'PaymentStatus'
+ */
+export type EnumPaymentStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'PaymentStatus'>
+    
+
+
+/**
+ * Reference to a field of type 'PaymentStatus[]'
+ */
+export type ListEnumPaymentStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'PaymentStatus[]'>
+    
+
+
+/**
  * Reference to a field of type 'Float'
  */
 export type FloatFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Float'>
@@ -2557,6 +2770,8 @@ export type GlobalOmitConfig = {
   employeeSalaryStructureAssignment?: Prisma.EmployeeSalaryStructureAssignmentOmit
   payrun?: Prisma.PayrunOmit
   payrunEmployee?: Prisma.PayrunEmployeeOmit
+  payslip?: Prisma.PayslipOmit
+  payslipLine?: Prisma.PayslipLineOmit
 }
 
 /* Types for Logging */

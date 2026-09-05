@@ -107,3 +107,13 @@ export type Payrun = Prisma.PayrunModel
  * 
  */
 export type PayrunEmployee = Prisma.PayrunEmployeeModel
+/**
+ * Model Payslip
+ * 
+ */
+export type Payslip = Prisma.PayslipModel
+/**
+ * Model PayslipLine
+ * 
+ */
+export type PayslipLine = Prisma.PayslipLineModel

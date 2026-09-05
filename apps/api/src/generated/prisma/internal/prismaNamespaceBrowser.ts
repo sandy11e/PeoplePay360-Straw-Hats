@@ -68,7 +68,9 @@ export const ModelName = {
   SalaryRule: 'SalaryRule',
   EmployeeSalaryStructureAssignment: 'EmployeeSalaryStructureAssignment',
   Payrun: 'Payrun',
-  PayrunEmployee: 'PayrunEmployee'
+  PayrunEmployee: 'PayrunEmployee',
+  Payslip: 'Payslip',
+  PayslipLine: 'PayslipLine'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -370,6 +372,41 @@ export const PayrunEmployeeScalarFieldEnum = {
 } as const
 
 export type PayrunEmployeeScalarFieldEnum = (typeof PayrunEmployeeScalarFieldEnum)[keyof typeof PayrunEmployeeScalarFieldEnum]
+
+
+export const PayslipScalarFieldEnum = {
+  id: 'id',
+  payslipNumber: 'payslipNumber',
+  payrunId: 'payrunId',
+  employeeId: 'employeeId',
+  periodStart: 'periodStart',
+  periodEnd: 'periodEnd',
+  baseSalary: 'baseSalary',
+  grossAmount: 'grossAmount',
+  totalDeductions: 'totalDeductions',
+  netAmount: 'netAmount',
+  status: 'status',
+  paymentStatus: 'paymentStatus',
+  generatedAt: 'generatedAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type PayslipScalarFieldEnum = (typeof PayslipScalarFieldEnum)[keyof typeof PayslipScalarFieldEnum]
+
+
+export const PayslipLineScalarFieldEnum = {
+  id: 'id',
+  payslipId: 'payslipId',
+  salaryRuleCode: 'salaryRuleCode',
+  salaryRuleName: 'salaryRuleName',
+  category: 'category',
+  amount: 'amount',
+  sequence: 'sequence',
+  createdAt: 'createdAt'
+} as const
+
+export type PayslipLineScalarFieldEnum = (typeof PayslipLineScalarFieldEnum)[keyof typeof PayslipLineScalarFieldEnum]
 
 
 export const SortOrder = {

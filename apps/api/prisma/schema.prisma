@@ -87,6 +87,18 @@ enum PayrunStatus {
   CANCELLED
 }
 
+enum PaymentStatus {
+  UNPAID
+  PROCESSING
+  PAID
+  FAILED
+}
+
+enum PayslipStatus {
+  DRAFT
+  FINAL
+}
+
 model User {
   id           String   @id @default(uuid()) @db.Uuid
   email        String   @unique @db.VarChar(320)
@@ -202,6 +214,7 @@ model Employee {
   leaveRequests              LeaveRequest[]
   salaryStructureAssignments EmployeeSalaryStructureAssignment[]
   payrunRecords              PayrunEmployee[]
+  payslips                   Payslip[]
 
   createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
   updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(3)
@@ -492,6 +505,7 @@ model Payrun {
   employeeCount     Int          @default(0) @map("employee_count")
 
   items             PayrunEmployee[]
+  payslips          Payslip[]
 
   createdAt         DateTime     @default(now()) @map("created_at") @db.Timestamptz(3)
   updatedAt         DateTime     @updatedAt @map("updated_at") @db.Timestamptz(3)
@@ -534,4 +548,61 @@ model PayrunEmployee {
   @@index([payrunId])
   @@index([employeeId])
   @@map("payrun_employees")
+}
+
+model Payslip {
+  id              String         @id @default(uuid()) @db.Uuid
+  payslipNumber   String         @unique @map("payslip_number") @db.VarChar(100)
+
+  payrunId        String         @map("payrun_id") @db.Uuid
+  payrun          Payrun         @relation(fields: [payrunId], references: [id], onDelete: Restrict)
+
+  employeeId      String         @map("employee_id") @db.Uuid
+  employee        Employee       @relation(fields: [employeeId], references: [id], onDelete: Restrict)
+
+  periodStart     DateTime       @map("period_start") @db.Date
+  periodEnd       DateTime       @map("period_end") @db.Date
+
+  baseSalary      Decimal        @map("base_salary") @db.Decimal(12, 2)
+  grossAmount     Decimal        @map("gross_amount") @db.Decimal(12, 2)
+  totalDeductions Decimal        @map("total_deductions") @db.Decimal(12, 2)
+  netAmount       Decimal        @map("net_amount") @db.Decimal(12, 2)
+
+  status          PayslipStatus  @default(DRAFT)
+  paymentStatus   PaymentStatus  @default(UNPAID) @map("payment_status")
+
+  lines           PayslipLine[]
+
+  generatedAt     DateTime       @default(now()) @map("generated_at") @db.Timestamptz(3)
+  createdAt       DateTime       @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt       DateTime       @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  @@unique([payrunId, employeeId])
+  @@index([payrunId])
+  @@index([employeeId])
+  @@index([status])
+  @@index([paymentStatus])
+  @@index([periodStart])
+  @@index([periodEnd])
+  @@map("payslips")
+}
+
+model PayslipLine {
+  id             String             @id @default(uuid()) @db.Uuid
+
+  payslipId      String             @map("payslip_id") @db.Uuid
+  payslip        Payslip            @relation(fields: [payslipId], references: [id], onDelete: Cascade)
+
+  salaryRuleCode String             @map("salary_rule_code") @db.VarChar(30)
+  salaryRuleName String             @map("salary_rule_name") @db.VarChar(120)
+  category       SalaryRuleCategory
+  amount         Decimal            @db.Decimal(12, 2)
+  sequence       Int
+
+  createdAt      DateTime           @default(now()) @map("created_at") @db.Timestamptz(3)
+
+  @@index([payslipId])
+  @@index([category])
+  @@index([sequence])
+  @@map("payslip_lines")
 }
