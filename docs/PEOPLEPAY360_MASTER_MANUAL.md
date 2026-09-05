@@ -131,11 +131,11 @@ peoplepay360/
 │
 ├── docs/                             # Architectural records & engineering verification logs
 │   ├── 00-project-overview.md        # Initial project specification
-│   ├── PEOPLEPAY360_MASTER_MANUAL.md # Detailed architecture and engineering manual
+│   ├── PEOPLEPAY360_MASTER_MANUAL.md # (This File) Authoritative manual
 │   └── versions/                     # Historical implementation milestones (V13 to V24)
 │
 ├── package.json                      # Root workspace configuration
-└── README.md                         # (This File) Repository master manual
+└── README.md                         # Quickstart reference for repository root
 ```
 
 ---

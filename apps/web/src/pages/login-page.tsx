@@ -8,7 +8,6 @@ import {
 } from "react-router-dom"
 import {
   ArrowRightIcon,
-  CoinsIcon,
   EyeIcon,
   EyeOffIcon,
   LockIcon,
@@ -70,29 +69,9 @@ export function LoginPage() {
 
       {/* 2. Top Header Navigation (Matching "Your Logo" and "Home / About / Help") */}
       <header className="relative z-20 flex items-center justify-between max-w-7xl w-full mx-auto">
-        <div className="flex items-center gap-3">
-          <div className="flex size-10 items-center justify-center rounded-xl bg-gradient-to-br from-[#082366] via-[#0e3894] to-[#1b53c5] text-white shadow-md ring-2 ring-[#c7d4fc]/40">
-            <CoinsIcon className="size-5 drop-shadow-xs animate-pulse-glow" />
-          </div>
-          <div>
-            <div className="flex items-center gap-1.5">
-              <span className="text-lg font-black tracking-tight text-[#071638] dark:text-white">PeoplePay</span>
-              <span className="rounded-md bg-[#082366]/10 dark:bg-white/10 px-1.5 py-0.5 text-[10px] font-black text-[#082366] dark:text-[#c7d4fc] uppercase tracking-wider">360</span>
-            </div>
-          </div>
-        </div>
+        
+          
 
-        <nav className="flex items-center gap-6 text-xs font-semibold text-white/90 drop-shadow-xs">
-          <a href="#about" onClick={(e) => e.preventDefault()} className="transition-opacity hover:opacity-100 opacity-85 cursor-pointer">
-            About
-          </a>
-          <a href="#security" onClick={(e) => e.preventDefault()} className="transition-opacity hover:opacity-100 opacity-85 cursor-pointer">
-            Security
-          </a>
-          <a href="#help" onClick={(e) => e.preventDefault()} className="transition-opacity hover:opacity-100 opacity-85 cursor-pointer">
-            Help
-          </a>
-        </nav>
       </header>
 
       {/* 3. Main Center Content Grid */}
