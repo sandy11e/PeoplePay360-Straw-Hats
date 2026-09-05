@@ -107,6 +107,7 @@ export function LeaveManagementPage() {
   const [selectedRequest, setSelectedRequest] = useState<LeaveRequestItem | null>(null)
   const [reviewAction, setReviewAction] = useState<"APPROVE" | "REJECT">("APPROVE")
   const [reviewComment, setReviewComment] = useState("")
+  const [reviewError, setReviewError] = useState<string | null>(null)
   const [isReviewing, setIsReviewing] = useState(false)
 
   // Leave Type Dialog
@@ -114,6 +115,7 @@ export function LeaveManagementPage() {
   const [typeCode, setTypeCode] = useState("")
   const [typeName, setTypeName] = useState("")
   const [typeIsPaid, setTypeIsPaid] = useState(true)
+  const [typeError, setTypeError] = useState<string | null>(null)
   const [isCreatingType, setIsCreatingType] = useState(false)
 
   // Leave Allocation Dialog
@@ -122,6 +124,7 @@ export function LeaveManagementPage() {
   const [allocTypeId, setAllocTypeId] = useState("")
   const [allocYear, setAllocYear] = useState(new Date().getUTCFullYear().toString())
   const [allocDays, setAllocDays] = useState("20")
+  const [allocError, setAllocError] = useState<string | null>(null)
   const [isAllocating, setIsAllocating] = useState(false)
 
   const fetchLeaveRequests = useCallback(async () => {
@@ -175,6 +178,7 @@ export function LeaveManagementPage() {
     setSelectedRequest(req)
     setReviewAction(action)
     setReviewComment("")
+    setReviewError(null)
     setReviewOpen(true)
   }
 
@@ -183,6 +187,7 @@ export function LeaveManagementPage() {
 
     try {
       setIsReviewing(true)
+      setReviewError(null)
       const endpoint =
         reviewAction === "APPROVE"
           ? `/leave-requests/${selectedRequest.id}/approve`
@@ -201,7 +206,9 @@ export function LeaveManagementPage() {
       setReviewOpen(false)
       void fetchLeaveRequests()
     } catch (err) {
-      setErrorMessage(err instanceof Error ? err.message : "Failed to process review")
+      const msg = err instanceof Error ? err.message : "Failed to process review"
+      setReviewError(msg)
+      setErrorMessage(msg)
     } finally {
       setIsReviewing(false)
     }
@@ -211,6 +218,7 @@ export function LeaveManagementPage() {
     e.preventDefault()
     try {
       setIsCreatingType(true)
+      setTypeError(null)
       await request("/leave-types", {
         method: "POST",
         body: {
@@ -226,7 +234,9 @@ export function LeaveManagementPage() {
       setTypeName("")
       void fetchReferenceData()
     } catch (err) {
-      setErrorMessage(err instanceof Error ? err.message : "Failed to create leave type")
+      const msg = err instanceof Error ? err.message : "Failed to create leave type"
+      setTypeError(msg)
+      setErrorMessage(msg)
     } finally {
       setIsCreatingType(false)
     }
@@ -236,6 +246,7 @@ export function LeaveManagementPage() {
     e.preventDefault()
     try {
       setIsAllocating(true)
+      setAllocError(null)
       await request("/leave-allocations", {
         method: "POST",
         body: {
@@ -248,7 +259,9 @@ export function LeaveManagementPage() {
       setSuccessMessage("Leave quota allocation saved successfully")
       setAllocationOpen(false)
     } catch (err) {
-      setErrorMessage(err instanceof Error ? err.message : "Failed to allocate leave quota")
+      const msg = err instanceof Error ? err.message : "Failed to allocate leave quota"
+      setAllocError(msg)
+      setErrorMessage(msg)
     } finally {
       setIsAllocating(false)
     }
@@ -454,6 +467,13 @@ export function LeaveManagementPage() {
             </DialogDescription>
           </DialogHeader>
 
+          {reviewError && (
+            <div className="flex items-start gap-2.5 rounded-lg border border-destructive/30 bg-destructive/10 p-3 text-xs text-destructive animate-in fade-in-50">
+              <AlertCircleIcon className="size-4 shrink-0 mt-0.5" />
+              <span>{reviewError}</span>
+            </div>
+          )}
+
           <div className="space-y-4 py-2">
             <div className="space-y-1.5">
               <Label htmlFor="review-comment">Reviewer Comment (Optional)</Label>
@@ -488,6 +508,13 @@ export function LeaveManagementPage() {
             <DialogTitle>Define Leave Type</DialogTitle>
             <DialogDescription>Create a new policy category for employee time-off.</DialogDescription>
           </DialogHeader>
+
+          {typeError && (
+            <div className="flex items-start gap-2.5 rounded-lg border border-destructive/30 bg-destructive/10 p-3 text-xs text-destructive animate-in fade-in-50">
+              <AlertCircleIcon className="size-4 shrink-0 mt-0.5" />
+              <span>{typeError}</span>
+            </div>
+          )}
 
           <form onSubmit={handleCreateLeaveType} className="space-y-4 py-2">
             <div className="space-y-1.5">
@@ -547,6 +574,13 @@ export function LeaveManagementPage() {
               Grant annual time-off entitlement days to an employee for a specific year.
             </DialogDescription>
           </DialogHeader>
+
+          {allocError && (
+            <div className="flex items-start gap-2.5 rounded-lg border border-destructive/30 bg-destructive/10 p-3 text-xs text-destructive animate-in fade-in-50">
+              <AlertCircleIcon className="size-4 shrink-0 mt-0.5" />
+              <span>{allocError}</span>
+            </div>
+          )}
 
           <form onSubmit={handleCreateAllocation} className="space-y-4 py-2">
             <div className="space-y-1.5">

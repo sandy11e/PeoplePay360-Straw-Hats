@@ -1,9 +1,11 @@
 import { useCallback, useEffect, useState, type FormEvent } from "react"
+import { Link } from "react-router-dom"
 import {
   AlertCircleIcon,
   CheckCircle2Icon,
   PlusIcon,
   SearchIcon,
+  TimerIcon,
 } from "lucide-react"
 
 import { useAuth } from "@/auth/auth-context"
@@ -95,6 +97,7 @@ export function AttendancePage() {
   const [checkOutTime, setCheckOutTime] = useState("17:00")
   const [manualStatus, setManualStatus] = useState("PRESENT")
   const [notes, setNotes] = useState("")
+  const [manualError, setManualError] = useState<string | null>(null)
   const [isSubmittingManual, setIsSubmittingManual] = useState(false)
 
   const fetchAttendance = useCallback(async () => {
@@ -152,15 +155,17 @@ export function AttendancePage() {
     setCheckOutTime("17:00")
     setManualStatus("PRESENT")
     setNotes("")
+    setManualError(null)
     setManualOpen(true)
   }
 
   async function handleManualSubmit(e: FormEvent) {
     e.preventDefault()
     setErrorMessage(null)
+    setManualError(null)
 
     if (!manualEmployeeId) {
-      setErrorMessage("Please select an employee")
+      setManualError("Please select an employee")
       return
     }
 
@@ -186,7 +191,9 @@ export function AttendancePage() {
       setManualOpen(false)
       void fetchAttendance()
     } catch (err) {
-      setErrorMessage(err instanceof Error ? err.message : "Failed to log manual attendance")
+      const msg = err instanceof Error ? err.message : "Failed to log manual attendance"
+      setManualError(msg)
+      setErrorMessage(msg)
     } finally {
       setIsSubmittingManual(false)
     }
@@ -217,12 +224,23 @@ export function AttendancePage() {
           </p>
         </div>
 
-        {canManage && (
-          <Button onClick={openManualModal} className="gap-2 shadow-xs">
-            <PlusIcon className="size-4" />
-            <span>Manual Attendance</span>
+        <div className="flex items-center gap-2">
+          <Button
+            variant="outline"
+            render={<Link to="/my-attendance" />}
+            className="gap-2 shadow-xs"
+          >
+            <TimerIcon className="size-4 text-primary" />
+            <span>My Punch Clock</span>
           </Button>
-        )}
+
+          {canManage && (
+            <Button onClick={openManualModal} className="gap-2 shadow-xs">
+              <PlusIcon className="size-4" />
+              <span>Manual Attendance</span>
+            </Button>
+          )}
+        </div>
       </div>
 
       {/* Notifications */}
@@ -403,6 +421,13 @@ export function AttendancePage() {
               Record an authoritative attendance event or adjustment on behalf of an employee.
             </DialogDescription>
           </DialogHeader>
+
+          {manualError && (
+            <div className="flex items-start gap-2.5 rounded-lg border border-destructive/30 bg-destructive/10 p-3 text-xs text-destructive animate-in fade-in-50">
+              <AlertCircleIcon className="size-4 shrink-0 mt-0.5" />
+              <span>{manualError}</span>
+            </div>
+          )}
 
           <form onSubmit={handleManualSubmit} className="space-y-4 py-2">
             <div className="space-y-1.5">

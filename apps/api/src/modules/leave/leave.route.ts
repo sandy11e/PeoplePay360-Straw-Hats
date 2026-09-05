@@ -303,24 +303,23 @@ leaveRouter.get(
 
       const filter = { ...parsed.data }
 
-      // If user is a regular EMPLOYEE, enforce self-only
-      if (auth.role === UserRole.EMPLOYEE) {
+      // If user is a regular EMPLOYEE or query explicitly requests self/me
+      const isSelfRequested = request.query.self === "true" || request.query.me === "true"
+      if (auth.role === UserRole.EMPLOYEE || isSelfRequested) {
         const employee = await prisma.employee.findUnique({
           where: { userId: auth.userId },
           select: { id: true },
         })
 
         if (!employee) {
-          response.status(400).json({
-            error: {
-              code: "USER_NOT_LINKED_TO_EMPLOYEE",
-              message: "User must be linked to an employee profile to view leave requests.",
-            },
+          response.status(200).json({
+            leaveRequests: [],
+            pagination: { page: 1, pageSize: 50, total: 0, totalPages: 0 },
           })
           return
         }
 
-        if (filter.employeeId && filter.employeeId !== employee.id) {
+        if (auth.role === UserRole.EMPLOYEE && filter.employeeId && filter.employeeId !== employee.id) {
           response.status(403).json({
             error: {
               code: "FORBIDDEN",
@@ -340,6 +339,80 @@ leaveRouter.get(
     }
   },
 )
+
+// GET /api/v1/leave-requests/me
+// Personal leave requests for the authenticated user (works across all roles)
+leaveRouter.get(
+  "/leave-requests/me",
+  requireAuth,
+  async (request: Request, response: Response) => {
+    try {
+      const auth = response.locals.auth as AuthContext
+      const employee = await prisma.employee.findUnique({
+        where: { userId: auth.userId },
+        select: { id: true },
+      })
+
+      if (!employee) {
+        response.status(200).json({
+          leaveRequests: [],
+          pagination: { page: 1, pageSize: 50, total: 0, totalPages: 0 },
+        })
+        return
+      }
+
+      const parsed = leaveRequestListQuerySchema.safeParse(request.query)
+      const filter = parsed.success ? { ...parsed.data } : { page: 1, pageSize: 50 }
+      filter.employeeId = employee.id
+
+      const result = await listLeaveRequests(filter)
+      response.status(200).json(result)
+    } catch (error) {
+      handleLeaveError(error, response)
+    }
+  },
+)
+
+// GET /api/v1/leave-balances/me and /api/v1/leave-allocations
+// Personal leave balances/allocations for the authenticated user
+async function getMyLeaveBalancesHandler(request: Request, response: Response) {
+  try {
+    const auth = response.locals.auth as AuthContext
+    const employee = await prisma.employee.findUnique({
+      where: { userId: auth.userId },
+      select: { id: true },
+    })
+
+    if (!employee) {
+      response.status(200).json({ balances: [] })
+      return
+    }
+
+    const targetYear = request.query.year
+      ? parseInt(request.query.year as string)
+      : new Date().getUTCFullYear()
+
+    const result = await getEmployeeLeaveBalances(employee.id, targetYear)
+    response.status(200).json({
+      balances: result.balances.map((b) => ({
+        leaveTypeId: b.leaveTypeId,
+        code: b.leaveType.code,
+        name: b.leaveType.name,
+        isPaid: b.leaveType.isPaid,
+        year: b.year,
+        allocatedDays: b.allocatedDays,
+        usedDays: b.usedDays,
+        remainingDays: b.availableDays,
+      })),
+    })
+  } catch (error) {
+    handleLeaveError(error, response)
+  }
+}
+
+leaveRouter.get("/leave-balances/me", requireAuth, getMyLeaveBalancesHandler)
+leaveRouter.get("/leave-allocations/me", requireAuth, getMyLeaveBalancesHandler)
+leaveRouter.get("/leave-allocations", requireAuth, getMyLeaveBalancesHandler)
 
 // GET /api/v1/leave-requests/:id
 // Get single leave request

@@ -449,30 +449,36 @@ export async function assignEmployeeScheduleHandler(
   // 4. Overlap detection & historical preservation logic
   let previousToCloseId: string | null = null
   let previousEffectiveToDate: Date | null = null
+  let previousToDeleteId: string | null = null
 
   if (closePrevious) {
-    // Look for an existing open-ended assignment that started before effectiveFrom
+    // Look for an existing open-ended assignment
     const openAssignment = await prisma.employeeScheduleAssignment.findFirst({
       where: {
         employeeId,
         effectiveTo: null,
-        effectiveFrom: { lt: effectiveFrom },
       },
       orderBy: { effectiveFrom: "desc" },
     })
 
     if (openAssignment) {
-      previousToCloseId = openAssignment.id
-      // Set end date to one day prior to effectiveFrom
-      previousEffectiveToDate = new Date(effectiveFrom.getTime() - 24 * 60 * 60 * 1000)
+      if (openAssignment.effectiveFrom < effectiveFrom) {
+        previousToCloseId = openAssignment.id
+        // Set end date to one day prior to effectiveFrom
+        previousEffectiveToDate = new Date(effectiveFrom.getTime() - 24 * 60 * 60 * 1000)
+      } else {
+        previousToDeleteId = openAssignment.id
+      }
     }
   }
+
+  const excludedScheduleIds = [previousToCloseId, previousToDeleteId].filter((id): id is string => Boolean(id))
 
   // Check for any overlapping assignment for this employee
   const conflictingAssignment = await prisma.employeeScheduleAssignment.findFirst({
     where: {
       employeeId,
-      ...(previousToCloseId ? { id: { not: previousToCloseId } } : {}),
+      ...(excludedScheduleIds.length > 0 ? { id: { notIn: excludedScheduleIds } } : {}),
       AND: [
         ...(effectiveTo ? [{ effectiveFrom: { lte: effectiveTo } }] : []),
         {
@@ -512,6 +518,12 @@ export async function assignEmployeeScheduleHandler(
 
   // Create the new assignment inside a transaction, closing previous if requested
   const assignment = await prisma.$transaction(async (tx) => {
+    if (previousToDeleteId) {
+      await tx.employeeScheduleAssignment.delete({
+        where: { id: previousToDeleteId },
+      })
+    }
+
     if (previousToCloseId && previousEffectiveToDate) {
       await tx.employeeScheduleAssignment.update({
         where: { id: previousToCloseId },

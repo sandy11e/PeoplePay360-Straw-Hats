@@ -102,6 +102,7 @@ export function MyLeavePage() {
   const [endDate, setEndDate] = useState(new Date().toISOString().slice(0, 10))
   const [reason, setReason] = useState("")
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [requestError, setRequestError] = useState<string | null>(null)
 
   // Cancel Request Modal
   const [cancelModalOpen, setCancelModalOpen] = useState(false)
@@ -113,7 +114,7 @@ export function MyLeavePage() {
       setErrorMessage(null)
 
       const [balRes, reqRes, typesRes] = await Promise.all([
-        request<LeaveBalancesResponse>("/leave-allocations").catch(() => ({ balances: [] })),
+        request<LeaveBalancesResponse>("/leave-balances/me").catch(() => ({ balances: [] })),
         request<LeaveRequestsResponse>("/leave-requests/me").catch(() => ({ leaveRequests: [] })),
         request<LeaveTypesResponse>("/leave-types").catch(() => ({ leaveTypes: [] })),
       ])
@@ -144,15 +145,17 @@ export function MyLeavePage() {
     setStartDate(new Date().toISOString().slice(0, 10))
     setEndDate(new Date().toISOString().slice(0, 10))
     setReason("")
+    setRequestError(null)
     setRequestModalOpen(true)
   }
 
   async function handleApplyLeave(e: FormEvent) {
     e.preventDefault()
+    setRequestError(null)
     setErrorMessage(null)
 
     if (!selectedTypeId) {
-      setErrorMessage("Please select a leave category")
+      setRequestError("Please select a leave category")
       return
     }
 
@@ -172,7 +175,8 @@ export function MyLeavePage() {
       setRequestModalOpen(false)
       void loadLeaveData()
     } catch (err) {
-      setErrorMessage(err instanceof Error ? err.message : "Failed to apply for leave")
+      const msg = err instanceof Error ? err.message : "Failed to apply for leave"
+      setRequestError(msg)
     } finally {
       setIsSubmitting(false)
     }
@@ -369,6 +373,13 @@ export function MyLeavePage() {
           </DialogHeader>
 
           <form onSubmit={handleApplyLeave} className="space-y-4 py-2">
+            {requestError && (
+              <div className="flex items-center gap-2 rounded-md border border-destructive/20 bg-destructive/10 p-3 text-xs text-destructive animate-in fade-in-50">
+                <AlertCircleIcon className="size-4 shrink-0" />
+                <span>{requestError}</span>
+              </div>
+            )}
+
             <div className="space-y-1.5">
               <Label htmlFor="req-type">Leave Category</Label>
               <select

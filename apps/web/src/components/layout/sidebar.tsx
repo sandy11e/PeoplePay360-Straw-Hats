@@ -22,6 +22,7 @@ import {
 import { useAuth } from "@/auth/auth-context"
 import {
   ADMIN_ONLY_ROLES,
+  ALL_ROLES,
   HR_ROLES,
   PAYROLL_ROLES,
   hasRole,
@@ -132,25 +133,25 @@ export const NAV_SECTIONS: NavSection[] = [
         label: "My Profile",
         to: "/my-profile",
         icon: UserCheckIcon,
-        allowedRoles: ["EMPLOYEE"],
+        allowedRoles: ALL_ROLES,
       },
       {
         label: "My Attendance",
         to: "/my-attendance",
         icon: TimerIcon,
-        allowedRoles: ["EMPLOYEE"],
+        allowedRoles: ALL_ROLES,
       },
       {
         label: "My Leave",
         to: "/my-leave",
         icon: CalendarDaysIcon,
-        allowedRoles: ["EMPLOYEE"],
+        allowedRoles: ALL_ROLES,
       },
       {
         label: "My Payslips",
         to: "/my-payslips",
         icon: WalletIcon,
-        allowedRoles: ["EMPLOYEE"],
+        allowedRoles: ALL_ROLES,
       },
     ],
   },

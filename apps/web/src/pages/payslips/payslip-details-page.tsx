@@ -48,6 +48,7 @@ export function PayslipDetailsPage() {
   const [isPaymentStatusOpen, setIsPaymentStatusOpen] = useState(false)
   const [selectedPaymentStatus, setSelectedPaymentStatus] =
     useState<PaymentStatus>("PAID")
+  const [statusModalError, setStatusModalError] = useState<string | null>(null)
   const [isSavingStatus, setIsSavingStatus] = useState(false)
 
   const isPayrollManagerOrAdmin =
@@ -120,12 +121,13 @@ export function PayslipDetailsPage() {
     if (!payslip) return
     setIsSavingStatus(true)
     setError(null)
+    setStatusModalError(null)
     try {
       await request(`/payslips/${payslip.id}/payment-status`, {
         method: "PATCH",
-        body: JSON.stringify({
+        body: {
           paymentStatus: selectedPaymentStatus,
-        }),
+        },
       })
       setIsPaymentStatusOpen(false)
       setSuccessMessage(
@@ -134,7 +136,9 @@ export function PayslipDetailsPage() {
       void loadPayslip()
     } catch (err: unknown) {
       const apiErr = err as { message?: string }
-      setError(apiErr.message || "Failed to update payment status.")
+      const msg = apiErr.message || "Failed to update payment status."
+      setStatusModalError(msg)
+      setError(msg)
     } finally {
       setIsSavingStatus(false)
     }
@@ -252,7 +256,10 @@ export function PayslipDetailsPage() {
           {isPayrollManagerOrAdmin && (
             <Button
               variant="default"
-              onClick={() => setIsPaymentStatusOpen(true)}
+              onClick={() => {
+                setStatusModalError(null)
+                setIsPaymentStatusOpen(true)
+              }}
             >
               Update Payment Status
             </Button>
@@ -523,6 +530,13 @@ export function PayslipDetailsPage() {
               {payslip.employee.firstName} {payslip.employee.lastName}).
             </DialogDescription>
           </DialogHeader>
+
+          {statusModalError && (
+            <div className="flex items-start gap-2.5 rounded-lg border border-destructive/30 bg-destructive/10 p-3 text-xs text-destructive animate-in fade-in-50">
+              <AlertCircleIcon className="size-4 shrink-0 mt-0.5" />
+              <span>{statusModalError}</span>
+            </div>
+          )}
 
           <form onSubmit={handleSavePaymentStatus} className="space-y-4">
             <div>

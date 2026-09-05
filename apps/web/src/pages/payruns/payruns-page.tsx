@@ -39,7 +39,7 @@ import {
   TableRow,
 } from "@/components/ui/table"
 import { formatDate, formatMoney } from "@/utils/format"
-import { isPayroll } from "@/utils/roles"
+import { canManagePayroll } from "@/utils/roles"
 
 interface PayrunRecord {
   id: string
@@ -66,7 +66,7 @@ interface PayrunListResponse {
 
 export function PayrunsPage() {
   const { request, user } = useAuth()
-  const canManage = isPayroll(user?.role)
+  const canManage = canManagePayroll(user?.role)
 
   const [payruns, setPayruns] = useState<PayrunRecord[]>([])
   const [page, setPage] = useState(1)

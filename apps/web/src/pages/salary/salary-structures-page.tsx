@@ -41,7 +41,7 @@ import {
   TableRow,
 } from "@/components/ui/table"
 import type { Employee, EmployeeListResponse } from "@/types/hr"
-import { isPayroll } from "@/utils/roles"
+import { canManagePayroll } from "@/utils/roles"
 
 interface SalaryRuleItem {
   id: string
@@ -73,7 +73,7 @@ interface SalaryStructuresResponse {
 
 export function SalaryStructuresPage() {
   const { request, user } = useAuth()
-  const canManage = isPayroll(user?.role)
+  const canManage = canManagePayroll(user?.role)
 
   const [structures, setStructures] = useState<SalaryStructureItem[]>([])
   const [employees, setEmployees] = useState<Employee[]>([])
@@ -88,6 +88,7 @@ export function SalaryStructuresPage() {
   const [name, setName] = useState("")
   const [description, setDescription] = useState("")
   const [isCreating, setIsCreating] = useState(false)
+  const [createError, setCreateError] = useState<string | null>(null)
 
   // Assign Structure Dialog
   const [assignOpen, setAssignOpen] = useState(false)
@@ -95,7 +96,9 @@ export function SalaryStructuresPage() {
   const [assignStructureId, setAssignStructureId] = useState("")
   const [effectiveFrom, setEffectiveFrom] = useState(new Date().toISOString().slice(0, 10))
   const [effectiveTo, setEffectiveTo] = useState("")
+  const [closePrevious, setClosePrevious] = useState(true)
   const [isAssigning, setIsAssigning] = useState(false)
+  const [assignError, setAssignError] = useState<string | null>(null)
 
   const fetchStructures = useCallback(async () => {
     try {
@@ -137,6 +140,7 @@ export function SalaryStructuresPage() {
     setCode(`SAL-${Date.now().toString().slice(-4)}`)
     setName("")
     setDescription("")
+    setCreateError(null)
     setCreateOpen(true)
   }
 
@@ -145,11 +149,14 @@ export function SalaryStructuresPage() {
     setAssignStructureId(structId || structures[0]?.id || "")
     setEffectiveFrom(new Date().toISOString().slice(0, 10))
     setEffectiveTo("")
+    setClosePrevious(true)
+    setAssignError(null)
     setAssignOpen(true)
   }
 
   async function handleCreateStructure(e: FormEvent) {
     e.preventDefault()
+    setCreateError(null)
     setErrorMessage(null)
 
     try {
@@ -168,7 +175,8 @@ export function SalaryStructuresPage() {
       setCreateOpen(false)
       void fetchStructures()
     } catch (err) {
-      setErrorMessage(err instanceof Error ? err.message : "Failed to create salary structure")
+      const msg = err instanceof Error ? err.message : "Failed to create salary structure"
+      setCreateError(msg)
     } finally {
       setIsCreating(false)
     }
@@ -176,10 +184,11 @@ export function SalaryStructuresPage() {
 
   async function handleAssignStructure(e: FormEvent) {
     e.preventDefault()
+    setAssignError(null)
     setErrorMessage(null)
 
     if (!assignEmployeeId || !assignStructureId) {
-      setErrorMessage("Employee and structure selection are required")
+      setAssignError("Employee and structure selection are required")
       return
     }
 
@@ -191,13 +200,16 @@ export function SalaryStructuresPage() {
           structureId: assignStructureId,
           effectiveFrom,
           effectiveTo: effectiveTo ? effectiveTo : null,
+          closePrevious,
         },
       })
 
       setSuccessMessage("Salary structure assigned to employee successfully")
       setAssignOpen(false)
+      void fetchStructures()
     } catch (err) {
-      setErrorMessage(err instanceof Error ? err.message : "Failed to assign salary structure")
+      const msg = err instanceof Error ? err.message : "Failed to assign salary structure"
+      setAssignError(msg)
     } finally {
       setIsAssigning(false)
     }
@@ -374,6 +386,13 @@ export function SalaryStructuresPage() {
           </DialogHeader>
 
           <form onSubmit={handleCreateStructure} className="space-y-4 py-2">
+            {createError && (
+              <div className="flex items-center gap-2 rounded-md border border-destructive/20 bg-destructive/10 p-3 text-xs text-destructive animate-in fade-in-50">
+                <AlertCircleIcon className="size-4 shrink-0" />
+                <span>{createError}</span>
+              </div>
+            )}
+
             <div className="space-y-1.5">
               <Label htmlFor="sal-code">Structure Code</Label>
               <Input
@@ -430,6 +449,13 @@ export function SalaryStructuresPage() {
           </DialogHeader>
 
           <form onSubmit={handleAssignStructure} className="space-y-4 py-2">
+            {assignError && (
+              <div className="flex items-center gap-2 rounded-md border border-destructive/20 bg-destructive/10 p-3 text-xs text-destructive animate-in fade-in-50">
+                <AlertCircleIcon className="size-4 shrink-0" />
+                <span>{assignError}</span>
+              </div>
+            )}
+
             <div className="space-y-1.5">
               <Label htmlFor="as-emp">Employee</Label>
               <select
@@ -487,6 +513,19 @@ export function SalaryStructuresPage() {
                   onChange={(e) => setEffectiveTo(e.target.value)}
                 />
               </div>
+            </div>
+
+            <div className="flex items-center gap-2 pt-1">
+              <input
+                type="checkbox"
+                id="as-close-prev"
+                checked={closePrevious}
+                onChange={(e) => setClosePrevious(e.target.checked)}
+                className="size-4 rounded-sm border border-input text-primary accent-primary cursor-pointer"
+              />
+              <Label htmlFor="as-close-prev" className="cursor-pointer text-xs font-normal text-muted-foreground">
+                Automatically close / supersede previous active assignment
+              </Label>
             </div>
 
             <DialogFooter className="pt-3">

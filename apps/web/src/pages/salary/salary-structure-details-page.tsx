@@ -40,7 +40,7 @@ import {
   TableRow,
 } from "@/components/ui/table"
 import { formatMoney } from "@/utils/format"
-import { isPayroll } from "@/utils/roles"
+import { canManagePayroll } from "@/utils/roles"
 
 interface SalaryRuleRecord {
   id: string
@@ -72,7 +72,7 @@ interface StructureDetailResponse {
 export function SalaryStructureDetailsPage() {
   const { id } = useParams<{ id: string }>()
   const { request, user } = useAuth()
-  const canManage = isPayroll(user?.role)
+  const canManage = canManagePayroll(user?.role)
 
   const [structure, setStructure] = useState<SalaryStructureDetail | null>(null)
   const [isLoading, setIsLoading] = useState(true)
@@ -91,6 +91,7 @@ export function SalaryStructureDetailsPage() {
   const [baseTarget, setBaseTarget] = useState<"BASE_SALARY" | "GROSS_EARNINGS">("BASE_SALARY")
   const [isTaxable, setIsTaxable] = useState(true)
   const [isSubmittingRule, setIsSubmittingRule] = useState(false)
+  const [ruleError, setRuleError] = useState<string | null>(null)
 
   // Delete Rule Confirmation
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false)
@@ -133,12 +134,14 @@ export function SalaryStructureDetailsPage() {
     setPercentageVal("10")
     setBaseTarget("BASE_SALARY")
     setIsTaxable(true)
+    setRuleError(null)
     setAddRuleOpen(true)
   }
 
   async function handleAddRule(e: FormEvent) {
     e.preventDefault()
     if (!id) return
+    setRuleError(null)
     setErrorMessage(null)
 
     try {
@@ -173,7 +176,8 @@ export function SalaryStructureDetailsPage() {
       setAddRuleOpen(false)
       void loadStructure()
     } catch (err) {
-      setErrorMessage(err instanceof Error ? err.message : "Failed to add salary rule")
+      const msg = err instanceof Error ? err.message : "Failed to add salary rule"
+      setRuleError(msg)
     } finally {
       setIsSubmittingRule(false)
     }
@@ -389,6 +393,13 @@ export function SalaryStructureDetailsPage() {
           </DialogHeader>
 
           <form onSubmit={handleAddRule} className="space-y-4 py-2">
+            {ruleError && (
+              <div className="flex items-center gap-2 rounded-md border border-destructive/20 bg-destructive/10 p-3 text-xs text-destructive animate-in fade-in-50">
+                <AlertCircleIcon className="size-4 shrink-0" />
+                <span>{ruleError}</span>
+              </div>
+            )}
+
             <div className="grid grid-cols-3 gap-3">
               <div className="space-y-1.5">
                 <Label htmlFor="r-seq">Sequence</Label>

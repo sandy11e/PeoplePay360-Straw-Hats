@@ -357,28 +357,37 @@ export async function assignSalaryStructureToEmployee(params: AssignSalaryStruct
   return prisma.$transaction(async (tx) => {
     let previousToCloseId: string | null = null
     let previousEffectiveToDate: Date | null = null
+    let previousToDeleteId: string | null = null
 
     if (closePrevious) {
       const openAssignment = await tx.employeeSalaryStructureAssignment.findFirst({
         where: {
           employeeId,
           effectiveTo: null,
-          effectiveFrom: { lt: effectiveFromDate },
         },
         orderBy: { effectiveFrom: "desc" },
       })
 
       if (openAssignment) {
-        previousToCloseId = openAssignment.id
-        previousEffectiveToDate = new Date(effectiveFromDate.getTime() - 24 * 60 * 60 * 1000)
+        if (openAssignment.effectiveFrom < effectiveFromDate) {
+          previousToCloseId = openAssignment.id
+          previousEffectiveToDate = new Date(effectiveFromDate.getTime() - 24 * 60 * 60 * 1000)
+        } else {
+          // If the existing open assignment started on or after effectiveFromDate (e.g. same day),
+          // it is superseded by the new assignment.
+          previousToDeleteId = openAssignment.id
+        }
       }
     }
+
+    // Excluded IDs from conflict check
+    const excludedIds = [previousToCloseId, previousToDeleteId].filter((id): id is string => Boolean(id))
 
     // Check for any overlapping assignment for this employee
     const conflictingAssignment = await tx.employeeSalaryStructureAssignment.findFirst({
       where: {
         employeeId,
-        ...(previousToCloseId ? { id: { not: previousToCloseId } } : {}),
+        ...(excludedIds.length > 0 ? { id: { notIn: excludedIds } } : {}),
         AND: [
           ...(effectiveToDate ? [{ effectiveFrom: { lte: effectiveToDate } }] : []),
           {
@@ -402,6 +411,12 @@ export async function assignSalaryStructureToEmployee(params: AssignSalaryStruct
         "SALARY_STRUCTURE_ASSIGNMENT_OVERLAP",
         `Employee already has an active salary structure assignment during this period (${conflictingAssignment.structure.name} [${conflictingAssignment.structure.code}] from ${formatDateOnly(conflictingAssignment.effectiveFrom)} to ${conflictingAssignment.effectiveTo ? formatDateOnly(conflictingAssignment.effectiveTo) : "ongoing"}).`,
       )
+    }
+
+    if (previousToDeleteId) {
+      await tx.employeeSalaryStructureAssignment.delete({
+        where: { id: previousToDeleteId },
+      })
     }
 
     if (previousToCloseId && previousEffectiveToDate) {

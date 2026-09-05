@@ -1,5 +1,5 @@
-import { useLocation } from "react-router-dom"
-import { LogOutIcon, MenuIcon, UserCircleIcon } from "lucide-react"
+import { Link, useLocation } from "react-router-dom"
+import { LogOutIcon, MenuIcon, TimerIcon, UserCircleIcon } from "lucide-react"
 
 import { useAuth } from "@/auth/auth-context"
 import { Button } from "@/components/ui/button"
@@ -49,6 +49,17 @@ export function Topbar({ onMenuToggle }: TopbarProps) {
 
       {/* Right section: User profile, role badge, logout */}
       <div className="flex items-center gap-3">
+        <Button
+          variant="outline"
+          size="sm"
+          render={<Link to="/my-attendance" />}
+          className="hidden sm:inline-flex items-center gap-1.5 h-8 text-xs font-medium text-foreground hover:border-primary/50 shadow-2xs"
+          title="Personal Punch Clock (Check In / Out)"
+        >
+          <TimerIcon className="size-3.5 text-primary" />
+          <span>Punch Clock</span>
+        </Button>
+
         <div className="hidden sm:flex items-center gap-2 text-sm text-muted-foreground">
           <UserCircleIcon className="size-4 text-foreground/70" />
           <span className="font-medium text-foreground">{user?.email}</span>

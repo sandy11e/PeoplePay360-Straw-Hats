@@ -64,7 +64,9 @@ export async function apiRequest<T>(
 
       body:
         body !== undefined
-          ? JSON.stringify(body)
+          ? typeof body === "string"
+            ? body
+            : JSON.stringify(body)
           : undefined,
     },
   )

@@ -73,6 +73,7 @@ export function PayslipsPage() {
     useState<Payslip | null>(null)
   const [selectedPaymentStatus, setSelectedPaymentStatus] =
     useState<PaymentStatus>("PAID")
+  const [statusModalError, setStatusModalError] = useState<string | null>(null)
   const [isUpdatingStatus, setIsUpdatingStatus] = useState(false)
 
   const isPayrollManagerOrAdmin =
@@ -206,12 +207,13 @@ export function PayslipsPage() {
 
     setIsUpdatingStatus(true)
     setError(null)
+    setStatusModalError(null)
     try {
       await request(`/payslips/${paymentStatusModalPayslip.id}/payment-status`, {
         method: "PATCH",
-        body: JSON.stringify({
+        body: {
           paymentStatus: selectedPaymentStatus,
-        }),
+        },
       })
       setSuccessMessage(
         `Payment status updated to ${selectedPaymentStatus} for ${paymentStatusModalPayslip.payslipNumber}`,
@@ -220,7 +222,9 @@ export function PayslipsPage() {
       void loadPayslips()
     } catch (err: unknown) {
       const apiErr = err as { message?: string }
-      setError(apiErr.message || "Failed to update payment status.")
+      const msg = apiErr.message || "Failed to update payment status."
+      setStatusModalError(msg)
+      setError(msg)
     } finally {
       setIsUpdatingStatus(false)
     }
@@ -538,6 +542,7 @@ export function PayslipsPage() {
                               onClick={() => {
                                 setPaymentStatusModalPayslip(slip)
                                 setSelectedPaymentStatus(slip.paymentStatus)
+                                setStatusModalError(null)
                               }}
                             >
                               Payment
@@ -614,6 +619,13 @@ export function PayslipsPage() {
                 ).
               </DialogDescription>
             </DialogHeader>
+
+            {statusModalError && (
+              <div className="flex items-start gap-2.5 rounded-lg border border-destructive/30 bg-destructive/10 p-3 text-xs text-destructive animate-in fade-in-50">
+                <AlertCircleIcon className="size-4 shrink-0 mt-0.5" />
+                <span>{statusModalError}</span>
+              </div>
+            )}
 
             <form onSubmit={handleUpdatePaymentStatus} className="space-y-4">
               <div>
