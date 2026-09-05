@@ -80,6 +80,13 @@ enum SalaryRuleBase {
   GROSS_EARNINGS
 }
 
+enum PayrunStatus {
+  DRAFT
+  CALCULATED
+  VALIDATED
+  CANCELLED
+}
+
 model User {
   id           String   @id @default(uuid()) @db.Uuid
   email        String   @unique @db.VarChar(320)
@@ -95,6 +102,8 @@ model User {
   refreshTokens         RefreshToken[]
   employee              Employee?
   reviewedLeaveRequests LeaveRequest[] @relation("LeaveReviewedBy")
+  createdPayruns        Payrun[]       @relation("PayrunCreatedBy")
+  validatedPayruns      Payrun[]       @relation("PayrunValidatedBy")
 
   @@map("users")
 }
@@ -192,6 +201,7 @@ model Employee {
   leaveAllocations           LeaveAllocation[]
   leaveRequests              LeaveRequest[]
   salaryStructureAssignments EmployeeSalaryStructureAssignment[]
+  payrunRecords              PayrunEmployee[]
 
   createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
   updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(3)
@@ -456,4 +466,72 @@ model EmployeeSalaryStructureAssignment {
   @@index([effectiveFrom])
   @@index([effectiveTo])
   @@map("employee_salary_structure_assignments")
+}
+
+model Payrun {
+  id                String       @id @default(uuid()) @db.Uuid
+  code              String       @unique @db.VarChar(50)
+
+  periodStart       DateTime     @map("period_start") @db.Date
+  periodEnd         DateTime     @map("period_end") @db.Date
+
+  status            PayrunStatus @default(DRAFT)
+
+  createdByUserId   String       @map("created_by_user_id") @db.Uuid
+  createdByUser     User         @relation("PayrunCreatedBy", fields: [createdByUserId], references: [id], onDelete: Restrict)
+
+  calculatedAt      DateTime?    @map("calculated_at") @db.Timestamptz(3)
+
+  validatedAt       DateTime?    @map("validated_at") @db.Timestamptz(3)
+  validatedByUserId String?      @map("validated_by_user_id") @db.Uuid
+  validatedByUser   User?        @relation("PayrunValidatedBy", fields: [validatedByUserId], references: [id], onDelete: SetNull)
+
+  totalGross        Decimal?     @map("total_gross") @db.Decimal(14, 2)
+  totalDeductions   Decimal?     @map("total_deductions") @db.Decimal(14, 2)
+  totalNet          Decimal?     @map("total_net") @db.Decimal(14, 2)
+  employeeCount     Int          @default(0) @map("employee_count")
+
+  items             PayrunEmployee[]
+
+  createdAt         DateTime     @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt         DateTime     @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  @@index([periodStart])
+  @@index([periodEnd])
+  @@index([status])
+  @@map("payruns")
+}
+
+model PayrunEmployee {
+  id                      String           @id @default(uuid()) @db.Uuid
+
+  payrunId                String           @map("payrun_id") @db.Uuid
+  payrun                  Payrun           @relation(fields: [payrunId], references: [id], onDelete: Cascade)
+
+  employeeId              String           @map("employee_id") @db.Uuid
+  employee                Employee         @relation(fields: [employeeId], references: [id], onDelete: Restrict)
+
+  contractId              String?          @map("contract_id") @db.Uuid
+  contractSnapshot        Json?            @map("contract_snapshot")
+
+  salaryStructureId       String?          @map("salary_structure_id") @db.Uuid
+  salaryStructureSnapshot Json?            @map("salary_structure_snapshot")
+
+  baseSalary              Decimal          @map("base_salary") @db.Decimal(12, 2)
+  grossAmount             Decimal          @map("gross_amount") @db.Decimal(12, 2)
+  deductionAmount         Decimal          @map("deduction_amount") @db.Decimal(12, 2)
+  netAmount               Decimal          @map("net_amount") @db.Decimal(12, 2)
+
+  lineItems               Json             @map("line_items")
+  warnings                Json             @map("warnings")
+  warningCount            Int              @default(0) @map("warning_count")
+
+  calculatedAt            DateTime         @default(now()) @map("calculated_at") @db.Timestamptz(3)
+  createdAt               DateTime         @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt               DateTime         @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  @@unique([payrunId, employeeId])
+  @@index([payrunId])
+  @@index([employeeId])
+  @@map("payrun_employees")
 }

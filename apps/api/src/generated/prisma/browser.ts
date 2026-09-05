@@ -97,3 +97,13 @@ export type SalaryRule = Prisma.SalaryRuleModel
  * 
  */
 export type EmployeeSalaryStructureAssignment = Prisma.EmployeeSalaryStructureAssignmentModel
+/**
+ * Model Payrun
+ * 
+ */
+export type Payrun = Prisma.PayrunModel
+/**
+ * Model PayrunEmployee
+ * 
+ */
+export type PayrunEmployee = Prisma.PayrunEmployeeModel

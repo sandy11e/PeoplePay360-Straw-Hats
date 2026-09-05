@@ -108,3 +108,13 @@ export const SalaryRuleBase = {
 } as const
 
 export type SalaryRuleBase = (typeof SalaryRuleBase)[keyof typeof SalaryRuleBase]
+
+
+export const PayrunStatus = {
+  DRAFT: 'DRAFT',
+  CALCULATED: 'CALCULATED',
+  VALIDATED: 'VALIDATED',
+  CANCELLED: 'CANCELLED'
+} as const
+
+export type PayrunStatus = (typeof PayrunStatus)[keyof typeof PayrunStatus]

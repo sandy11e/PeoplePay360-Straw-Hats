@@ -16,6 +16,7 @@ import { workScheduleRouter } from "./modules/work-schedules/work-schedule.route
 import { attendanceRouter } from "./modules/attendance/attendance.route.js"
 import { leaveRouter } from "./modules/leave/leave.route.js"
 import { salaryStructureRouter } from "./modules/salary-structures/salary-structure.route.js"
+import { payrollRouter } from "./modules/payroll/payroll.route.js"
 
 export const app = express()
 
@@ -94,6 +95,11 @@ app.use(
 app.use(
   "/api/v1",
   salaryStructureRouter,
+)
+
+app.use(
+  "/api/v1",
+  payrollRouter,
 )
 
 app.use((_request, response) => {

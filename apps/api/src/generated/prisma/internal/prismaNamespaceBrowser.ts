@@ -66,7 +66,9 @@ export const ModelName = {
   LeaveRequest: 'LeaveRequest',
   SalaryStructure: 'SalaryStructure',
   SalaryRule: 'SalaryRule',
-  EmployeeSalaryStructureAssignment: 'EmployeeSalaryStructureAssignment'
+  EmployeeSalaryStructureAssignment: 'EmployeeSalaryStructureAssignment',
+  Payrun: 'Payrun',
+  PayrunEmployee: 'PayrunEmployee'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -326,12 +328,71 @@ export const EmployeeSalaryStructureAssignmentScalarFieldEnum = {
 export type EmployeeSalaryStructureAssignmentScalarFieldEnum = (typeof EmployeeSalaryStructureAssignmentScalarFieldEnum)[keyof typeof EmployeeSalaryStructureAssignmentScalarFieldEnum]
 
 
+export const PayrunScalarFieldEnum = {
+  id: 'id',
+  code: 'code',
+  periodStart: 'periodStart',
+  periodEnd: 'periodEnd',
+  status: 'status',
+  createdByUserId: 'createdByUserId',
+  calculatedAt: 'calculatedAt',
+  validatedAt: 'validatedAt',
+  validatedByUserId: 'validatedByUserId',
+  totalGross: 'totalGross',
+  totalDeductions: 'totalDeductions',
+  totalNet: 'totalNet',
+  employeeCount: 'employeeCount',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type PayrunScalarFieldEnum = (typeof PayrunScalarFieldEnum)[keyof typeof PayrunScalarFieldEnum]
+
+
+export const PayrunEmployeeScalarFieldEnum = {
+  id: 'id',
+  payrunId: 'payrunId',
+  employeeId: 'employeeId',
+  contractId: 'contractId',
+  contractSnapshot: 'contractSnapshot',
+  salaryStructureId: 'salaryStructureId',
+  salaryStructureSnapshot: 'salaryStructureSnapshot',
+  baseSalary: 'baseSalary',
+  grossAmount: 'grossAmount',
+  deductionAmount: 'deductionAmount',
+  netAmount: 'netAmount',
+  lineItems: 'lineItems',
+  warnings: 'warnings',
+  warningCount: 'warningCount',
+  calculatedAt: 'calculatedAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type PayrunEmployeeScalarFieldEnum = (typeof PayrunEmployeeScalarFieldEnum)[keyof typeof PayrunEmployeeScalarFieldEnum]
+
+
 export const SortOrder = {
   asc: 'asc',
   desc: 'desc'
 } as const
 
 export type SortOrder = (typeof SortOrder)[keyof typeof SortOrder]
+
+
+export const NullableJsonNullValueInput = {
+  DbNull: DbNull,
+  JsonNull: JsonNull
+} as const
+
+export type NullableJsonNullValueInput = (typeof NullableJsonNullValueInput)[keyof typeof NullableJsonNullValueInput]
+
+
+export const JsonNullValueInput = {
+  JsonNull: JsonNull
+} as const
+
+export type JsonNullValueInput = (typeof JsonNullValueInput)[keyof typeof JsonNullValueInput]
 
 
 export const QueryMode = {
@@ -348,4 +409,13 @@ export const NullsOrder = {
 } as const
 
 export type NullsOrder = (typeof NullsOrder)[keyof typeof NullsOrder]
+
+
+export const JsonNullValueFilter = {
+  DbNull: DbNull,
+  JsonNull: JsonNull,
+  AnyNull: AnyNull
+} as const
+
+export type JsonNullValueFilter = (typeof JsonNullValueFilter)[keyof typeof JsonNullValueFilter]
 
