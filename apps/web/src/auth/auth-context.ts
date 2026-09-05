@@ -4,6 +4,9 @@ import {
 } from "react"
 
 import type {
+  ApiOptions,
+} from "@/api/api"
+import type {
   AuthUser,
 } from "@/types/auth"
 
@@ -18,6 +21,11 @@ export interface AuthContextValue {
   ) => Promise<void>
 
   logout: () => Promise<void>
+
+  request: <T>(
+    path: string,
+    options?: ApiOptions,
+  ) => Promise<T>
 }
 
 export const AuthContext =

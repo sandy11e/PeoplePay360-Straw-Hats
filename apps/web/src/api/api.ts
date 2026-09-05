@@ -4,18 +4,21 @@ const API_URL =
 
 export class ApiError extends Error {
   status: number
+  data: unknown
 
   constructor(
     status: number,
     message: string,
+    data?: unknown,
   ) {
     super(message)
     this.name = "ApiError"
     this.status = status
+    this.data = data
   }
 }
 
-interface ApiOptions
+export interface ApiOptions
   extends Omit<RequestInit, "body"> {
   body?: unknown
   accessToken?: string | null
@@ -68,16 +71,38 @@ export async function apiRequest<T>(
     return undefined as T
   }
 
-  const data = await response.json()
+  const data: unknown =
+    await response.json()
 
   if (!response.ok) {
-    const message =
-      data?.error?.message ??
-      "Request failed"
+    let message = "Request failed"
+
+    if (
+      typeof data === "object" &&
+      data !== null &&
+      "error" in data
+    ) {
+      const error =
+        (
+          data as {
+            error?: {
+              message?: unknown
+            }
+          }
+        ).error
+
+      if (
+        typeof error?.message ===
+        "string"
+      ) {
+        message = error.message
+      }
+    }
 
     throw new ApiError(
       response.status,
       message,
+      data,
     )
   }
 

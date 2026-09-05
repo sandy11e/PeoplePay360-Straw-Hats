@@ -1,10 +1,17 @@
 import {
+  useCallback,
   useEffect,
+  useRef,
   useState,
   type ReactNode,
 } from "react"
 
-import { apiRequest } from "@/api/api"
+import {
+  ApiError,
+  apiRequest,
+  type ApiOptions,
+} from "@/api/api"
+
 import type {
   AuthUser,
   LoginResponse,
@@ -36,27 +43,58 @@ export function AuthProvider({
     setIsLoading,
   ] = useState(true)
 
+  const refreshPromise =
+    useRef<Promise<string> | null>(
+      null,
+    )
+
+  const refreshAccessToken =
+    useCallback(
+      async (): Promise<string> => {
+        if (refreshPromise.current) {
+          return refreshPromise.current
+        }
+
+        const promise = (
+          async () => {
+            const refreshed =
+              await apiRequest<RefreshResponse>(
+                "/auth/refresh",
+                {
+                  method: "POST",
+                },
+              )
+
+            setAccessToken(
+              refreshed.accessToken,
+            )
+
+            return refreshed.accessToken
+          }
+        )()
+
+        refreshPromise.current = promise
+
+        try {
+          return await promise
+        } finally {
+          refreshPromise.current = null
+        }
+      },
+      [],
+    )
+
   useEffect(() => {
     async function restoreSession() {
       try {
-        const refreshed =
-          await apiRequest<RefreshResponse>(
-            "/auth/refresh",
-            {
-              method: "POST",
-            },
-          )
-
-        setAccessToken(
-          refreshed.accessToken,
-        )
+        const token =
+          await refreshAccessToken()
 
         const me =
           await apiRequest<MeResponse>(
             "/auth/me",
             {
-              accessToken:
-                refreshed.accessToken,
+              accessToken: token,
             },
           )
 
@@ -74,7 +112,7 @@ export function AuthProvider({
     }
 
     void restoreSession()
-  }, [])
+  }, [refreshAccessToken])
 
   async function login(
     email: string,
@@ -114,6 +152,66 @@ export function AuthProvider({
     }
   }
 
+  async function request<T>(
+    path: string,
+    options: ApiOptions = {},
+  ): Promise<T> {
+    let token = accessToken
+
+    if (!token) {
+      try {
+        token =
+          await refreshAccessToken()
+      } catch {
+        setUser(null)
+        setAccessToken(null)
+
+        throw new ApiError(
+          401,
+          "Authentication required",
+        )
+      }
+    }
+
+    try {
+      return await apiRequest<T>(
+        path,
+        {
+          ...options,
+          accessToken: token,
+        },
+      )
+    } catch (error) {
+      if (
+        !(
+          error instanceof ApiError
+        ) ||
+        error.status !== 401
+      ) {
+        throw error
+      }
+
+      try {
+        const newToken =
+          await refreshAccessToken()
+
+        return await apiRequest<T>(
+          path,
+          {
+            ...options,
+            accessToken:
+              newToken,
+          },
+        )
+      } catch (refreshError) {
+        setUser(null)
+        setAccessToken(null)
+
+        throw refreshError
+      }
+    }
+  }
+
   return (
     <AuthContext.Provider
       value={{
@@ -122,6 +220,7 @@ export function AuthProvider({
         isLoading,
         login,
         logout,
+        request,
       }}
     >
       {children}
