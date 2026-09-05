@@ -183,11 +183,15 @@ export function LeaveManagementPage() {
 
     try {
       setIsReviewing(true)
-      await request(`/leave-requests/${selectedRequest.id}/review`, {
-        method: "PATCH",
+      const endpoint =
+        reviewAction === "APPROVE"
+          ? `/leave-requests/${selectedRequest.id}/approve`
+          : `/leave-requests/${selectedRequest.id}/reject`
+
+      await request(endpoint, {
+        method: "POST",
         body: {
-          action: reviewAction,
-          reviewComment: reviewComment || null,
+          comment: reviewComment.trim() || null,
         },
       })
 
