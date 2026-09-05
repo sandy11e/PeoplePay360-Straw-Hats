@@ -2,7 +2,7 @@ import cookieParser from "cookie-parser"
 import cors from "cors"
 import express from "express"
 import helmet from "helmet"
-
+import { accessRouter } from "./routes/access.route.js"
 import { authRouter } from "./auth/auth.route.js"
 import { env } from "./config/env.js"
 import { errorHandler } from "./middleware/error.middleware.js"
@@ -37,6 +37,11 @@ app.use(
   authRouter,
 )
 
+app.use(
+  "/api/v1/access",
+  accessRouter,
+)
+
 app.use((_request, response) => {
   response.status(404).json({
     error: {
@@ -45,5 +50,7 @@ app.use((_request, response) => {
     },
   })
 })
+
+
 
 app.use(errorHandler)
