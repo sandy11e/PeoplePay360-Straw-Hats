@@ -7,6 +7,9 @@ import { authRouter } from "./auth/auth.route.js"
 import { env } from "./config/env.js"
 import { errorHandler } from "./middleware/error.middleware.js"
 import { healthRouter } from "./routes/health.route.js"
+import { departmentRouter } from "./modules/departments/department.route.js"
+import { employeeRouter } from "./modules/employees/employee.route.js"
+import { jobPositionRouter } from "./modules/job-positions/job-position.route.js"
 
 export const app = express()
 
@@ -40,6 +43,20 @@ app.use(
 app.use(
   "/api/v1/access",
   accessRouter,
+)
+app.use(
+  "/api/v1/departments",
+  departmentRouter,
+)
+
+app.use(
+  "/api/v1/job-positions",
+  jobPositionRouter,
+)
+
+app.use(
+  "/api/v1/employees",
+  employeeRouter,
 )
 
 app.use((_request, response) => {
