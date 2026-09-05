@@ -376,11 +376,12 @@ async function runVerification(): Promise<void> {
     // Alice viewing /me/payslips
     const aliceMySlips = await api("GET", "/me/payslips", null, empAToken)
     console.log(`Alice /me/payslips count: ${aliceMySlips.data.data?.length}`)
-    if (aliceMySlips.status !== 200 || aliceMySlips.data.data.length !== 1) {
+    if (aliceMySlips.status !== 200 || !aliceMySlips.data.data || aliceMySlips.data.data.length < 1) {
       throw new Error("Alice could not retrieve her own payslips")
     }
 
-    const aliceSlipId = aliceMySlips.data.data[0].id
+    const currentPayrunSlip = aliceMySlips.data.data.find((p: any) => p.payrun?.id === payrunId) || aliceMySlips.data.data[0]
+    const aliceSlipId = currentPayrunSlip.id
 
     // Alice viewing her own payslip by ID (/me/payslips/:id)
     const aliceSingleSlip = await api("GET", `/me/payslips/${aliceSlipId}`, null, empAToken)

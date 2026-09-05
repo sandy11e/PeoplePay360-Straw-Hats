@@ -40,6 +40,12 @@ const envSchema = z.object({
     .positive()
     .max(30)
     .default(7),
+
+  SMTP_HOST: z.string().optional(),
+  SMTP_PORT: z.coerce.number().int().positive().optional().default(587),
+  SMTP_USER: z.string().optional(),
+  SMTP_PASSWORD: z.string().optional(),
+  SMTP_FROM: z.string().optional().default("noreply@peoplepay360.com"),
 })
 
 const result = envSchema.safeParse(process.env)

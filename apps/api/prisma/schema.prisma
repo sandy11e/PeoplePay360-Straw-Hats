@@ -99,6 +99,16 @@ enum PayslipStatus {
   FINAL
 }
 
+enum DeliveryChannel {
+  EMAIL
+}
+
+enum DeliveryStatus {
+  PENDING
+  SENT
+  FAILED
+}
+
 model User {
   id           String   @id @default(uuid()) @db.Uuid
   email        String   @unique @db.VarChar(320)
@@ -572,6 +582,7 @@ model Payslip {
   paymentStatus   PaymentStatus  @default(UNPAID) @map("payment_status")
 
   lines           PayslipLine[]
+  deliveries      PayslipDelivery[]
 
   generatedAt     DateTime       @default(now()) @map("generated_at") @db.Timestamptz(3)
   createdAt       DateTime       @default(now()) @map("created_at") @db.Timestamptz(3)
@@ -605,4 +616,26 @@ model PayslipLine {
   @@index([category])
   @@index([sequence])
   @@map("payslip_lines")
+}
+
+model PayslipDelivery {
+  id           String          @id @default(uuid()) @db.Uuid
+
+  payslipId    String          @map("payslip_id") @db.Uuid
+  payslip      Payslip         @relation(fields: [payslipId], references: [id], onDelete: Cascade)
+
+  recipient    String          @db.VarChar(320)
+  channel      DeliveryChannel @default(EMAIL)
+  status       DeliveryStatus  @default(PENDING)
+
+  sentAt       DateTime?       @map("sent_at") @db.Timestamptz(3)
+  errorMessage String?         @map("error_message") @db.VarChar(1000)
+
+  createdAt    DateTime        @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt    DateTime        @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  @@index([payslipId])
+  @@index([status])
+  @@index([channel])
+  @@map("payslip_deliveries")
 }

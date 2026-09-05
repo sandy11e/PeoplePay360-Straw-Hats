@@ -117,3 +117,8 @@ export type Payslip = Prisma.PayslipModel
  * 
  */
 export type PayslipLine = Prisma.PayslipLineModel
+/**
+ * Model PayslipDelivery
+ * 
+ */
+export type PayslipDelivery = Prisma.PayslipDeliveryModel

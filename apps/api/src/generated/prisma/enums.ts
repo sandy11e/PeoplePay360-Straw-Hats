@@ -136,3 +136,19 @@ export const PayslipStatus = {
 } as const
 
 export type PayslipStatus = (typeof PayslipStatus)[keyof typeof PayslipStatus]
+
+
+export const DeliveryChannel = {
+  EMAIL: 'EMAIL'
+} as const
+
+export type DeliveryChannel = (typeof DeliveryChannel)[keyof typeof DeliveryChannel]
+
+
+export const DeliveryStatus = {
+  PENDING: 'PENDING',
+  SENT: 'SENT',
+  FAILED: 'FAILED'
+} as const
+
+export type DeliveryStatus = (typeof DeliveryStatus)[keyof typeof DeliveryStatus]
