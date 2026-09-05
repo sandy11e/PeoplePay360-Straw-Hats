@@ -9,6 +9,8 @@ import {
   createEmployeeSchema,
   employeeIdParamSchema,
   employeeListQuerySchema,
+  updateEmployeeSchema,
+  updateEmploymentStatusSchema,
 } from "./employee.schema.js"
 
 export const employeeRouter = Router()
@@ -384,6 +386,359 @@ employeeRouter.get(
 
     response.status(200).json({
       employee,
+    })
+  },
+)
+
+// PATCH /api/v1/employees/:id
+// Update employee details (ADMIN / HR_MANAGER)
+employeeRouter.patch(
+  "/:id",
+  requireAuth,
+  requireRole(
+    UserRole.ADMIN,
+    UserRole.HR_MANAGER,
+  ),
+  async (request, response) => {
+    const paramsResult =
+      employeeIdParamSchema.safeParse(
+        request.params,
+      )
+
+    if (!paramsResult.success) {
+      response.status(400).json({
+        error: {
+          code: "VALIDATION_ERROR",
+          message: "Invalid employee ID",
+          fields:
+            paramsResult.error.flatten().fieldErrors,
+        },
+      })
+
+      return
+    }
+
+    const bodyResult =
+      updateEmployeeSchema.safeParse(
+        request.body,
+      )
+
+    if (!bodyResult.success) {
+      response.status(400).json({
+        error: {
+          code: "VALIDATION_ERROR",
+          message: "Invalid employee data",
+          fields:
+            bodyResult.error.flatten().fieldErrors,
+        },
+      })
+
+      return
+    }
+
+    const { id } = paramsResult.data
+    const updates = bodyResult.data
+
+    // Check if employee exists
+    const employee =
+      await prisma.employee.findUnique({
+        where: { id },
+      })
+
+    if (!employee) {
+      response.status(404).json({
+        error: {
+          code: "EMPLOYEE_NOT_FOUND",
+          message: "Employee not found",
+        },
+      })
+
+      return
+    }
+
+    // Validate department if being updated
+    if (updates.departmentId) {
+      const department =
+        await prisma.department.findFirst({
+          where: {
+            id: updates.departmentId,
+            isActive: true,
+          },
+        })
+
+      if (!department) {
+        response.status(400).json({
+          error: {
+            code: "INVALID_DEPARTMENT",
+            message:
+              "Department does not exist or is inactive",
+          },
+        })
+
+        return
+      }
+    }
+
+    // Validate job position if being updated
+    if (updates.jobPositionId) {
+      const jobPosition =
+        await prisma.jobPosition.findFirst({
+          where: {
+            id: updates.jobPositionId,
+            isActive: true,
+          },
+        })
+
+      if (!jobPosition) {
+        response.status(400).json({
+          error: {
+            code: "INVALID_JOB_POSITION",
+            message:
+              "Job position does not exist or is inactive",
+          },
+        })
+
+        return
+      }
+    }
+
+    // Validate manager if being updated
+    if (
+      updates.managerId !== undefined &&
+      updates.managerId !== null
+    ) {
+      // Manager cannot be self
+      if (updates.managerId === id) {
+        response.status(400).json({
+          error: {
+            code: "INVALID_MANAGER",
+            message: "Employee cannot be their own manager",
+          },
+        })
+
+        return
+      }
+
+      const manager =
+        await prisma.employee.findUnique({
+          where: { id: updates.managerId },
+        })
+
+      if (!manager) {
+        response.status(400).json({
+          error: {
+            code: "INVALID_MANAGER",
+            message: "Manager does not exist",
+          },
+        })
+
+        return
+      }
+    }
+
+    // Validate user if being updated
+    if (updates.userId !== undefined) {
+      if (updates.userId !== null) {
+        const user =
+          await prisma.user.findUnique({
+            where: { id: updates.userId },
+          })
+
+        if (!user) {
+          response.status(400).json({
+            error: {
+              code: "INVALID_USER",
+              message:
+                "Selected user account does not exist",
+            },
+          })
+
+          return
+        }
+
+        // Check if user is already linked to another employee
+        const linked =
+          await prisma.employee.findFirst({
+            where: {
+              userId: updates.userId,
+              id: { not: id },
+            },
+          })
+
+        if (linked) {
+          response.status(409).json({
+            error: {
+              code: "USER_ALREADY_LINKED",
+              message:
+                "User account is already linked to an employee",
+            },
+          })
+
+          return
+        }
+      }
+    }
+
+    // Check for duplicate workEmail if being updated
+    if (
+      updates.workEmail &&
+      updates.workEmail !== employee.workEmail
+    ) {
+      const duplicate =
+        await prisma.employee.findFirst({
+          where: {
+            workEmail: updates.workEmail,
+            id: { not: id },
+          },
+        })
+
+      if (duplicate) {
+        response.status(409).json({
+          error: {
+            code: "WORK_EMAIL_EXISTS",
+            message:
+              "This work email is already in use",
+          },
+        })
+
+        return
+      }
+    }
+
+    // Prepare update data - use null explicitly when undefined
+    const updateData: Record<string, unknown> = {}
+
+    if (updates.firstName !== undefined) {
+      updateData.firstName = updates.firstName
+    }
+
+    if (updates.middleName !== undefined) {
+      updateData.middleName =
+        updates.middleName === null
+          ? null
+          : updates.middleName
+    }
+
+    if (updates.lastName !== undefined) {
+      updateData.lastName = updates.lastName
+    }
+
+    if (updates.workEmail !== undefined) {
+      updateData.workEmail = updates.workEmail
+    }
+
+    if (updates.phone !== undefined) {
+      updateData.phone =
+        updates.phone === null ? null : updates.phone
+    }
+
+    if (updates.departmentId !== undefined) {
+      updateData.departmentId = updates.departmentId
+    }
+
+    if (updates.jobPositionId !== undefined) {
+      updateData.jobPositionId = updates.jobPositionId
+    }
+
+    if (updates.managerId !== undefined) {
+      updateData.managerId =
+        updates.managerId === null
+          ? null
+          : updates.managerId
+    }
+
+    if (updates.userId !== undefined) {
+      updateData.userId =
+        updates.userId === null ? null : updates.userId
+    }
+
+    const updated = await prisma.employee.update({
+      where: { id },
+      data: updateData,
+      select: employeeSelect,
+    })
+
+    response.status(200).json({
+      employee: updated,
+    })
+  },
+)
+
+// PATCH /api/v1/employees/:id/status
+// Update employee employment status (ADMIN / HR_MANAGER)
+employeeRouter.patch(
+  "/:id/status",
+  requireAuth,
+  requireRole(
+    UserRole.ADMIN,
+    UserRole.HR_MANAGER,
+  ),
+  async (request, response) => {
+    const paramsResult =
+      employeeIdParamSchema.safeParse(
+        request.params,
+      )
+
+    if (!paramsResult.success) {
+      response.status(400).json({
+        error: {
+          code: "VALIDATION_ERROR",
+          message: "Invalid employee ID",
+          fields:
+            paramsResult.error.flatten().fieldErrors,
+        },
+      })
+
+      return
+    }
+
+    const bodyResult =
+      updateEmploymentStatusSchema.safeParse(
+        request.body,
+      )
+
+    if (!bodyResult.success) {
+      response.status(400).json({
+        error: {
+          code: "VALIDATION_ERROR",
+          message: "Invalid status data",
+          fields:
+            bodyResult.error.flatten().fieldErrors,
+        },
+      })
+
+      return
+    }
+
+    const { id } = paramsResult.data
+    const { status } = bodyResult.data
+
+    // Check if employee exists
+    const employee =
+      await prisma.employee.findUnique({
+        where: { id },
+      })
+
+    if (!employee) {
+      response.status(404).json({
+        error: {
+          code: "EMPLOYEE_NOT_FOUND",
+          message: "Employee not found",
+        },
+      })
+
+      return
+    }
+
+    // Update employment status
+    const updated = await prisma.employee.update({
+      where: { id },
+      data: { employmentStatus: status },
+      select: employeeSelect,
+    })
+
+    response.status(200).json({
+      employee: updated,
     })
   },
 )

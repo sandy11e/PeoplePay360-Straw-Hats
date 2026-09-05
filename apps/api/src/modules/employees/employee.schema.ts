@@ -1,5 +1,7 @@
 import { z } from "zod"
 
+import { EmploymentStatus } from "../../generated/prisma/enums.js"
+
 const datePattern = /^\d{4}-\d{2}-\d{2}$/
 
 export const createEmployeeSchema = z.object({
@@ -65,6 +67,64 @@ export const createEmployeeSchema = z.object({
     .uuid()
     .nullable()
     .optional(),
+})
+
+export const updateEmployeeSchema = z.object({
+  firstName: z
+    .string()
+    .trim()
+    .min(1)
+    .max(100)
+    .optional(),
+
+  middleName: z
+    .string()
+    .trim()
+    .max(100)
+    .nullable()
+    .optional(),
+
+  lastName: z
+    .string()
+    .trim()
+    .min(1)
+    .max(100)
+    .optional(),
+
+  workEmail: z
+    .string()
+    .trim()
+    .email()
+    .transform((value) => value.toLowerCase())
+    .optional(),
+
+  phone: z
+    .string()
+    .trim()
+    .min(5)
+    .max(30)
+    .nullable()
+    .optional(),
+
+  departmentId: z.string().uuid().optional(),
+
+  jobPositionId: z.string().uuid().optional(),
+
+  managerId: z
+    .string()
+    .uuid()
+    .nullable()
+    .optional(),
+
+  userId: z
+    .string()
+    .uuid()
+    .nullable()
+    .optional(),
+})
+
+export const updateEmploymentStatusSchema = z.object({
+  status: z.nativeEnum(EmploymentStatus),
 })
 
 export const employeeListQuerySchema = z.object({

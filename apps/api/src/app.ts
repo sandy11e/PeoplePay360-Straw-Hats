@@ -10,6 +10,7 @@ import { healthRouter } from "./routes/health.route.js"
 import { departmentRouter } from "./modules/departments/department.route.js"
 import { employeeRouter } from "./modules/employees/employee.route.js"
 import { jobPositionRouter } from "./modules/job-positions/job-position.route.js"
+import { userRouter } from "./modules/users/user.route.js"
 
 export const app = express()
 
@@ -44,6 +45,12 @@ app.use(
   "/api/v1/access",
   accessRouter,
 )
+
+app.use(
+  "/api/v1/users",
+  userRouter,
+)
+
 app.use(
   "/api/v1/departments",
   departmentRouter,
