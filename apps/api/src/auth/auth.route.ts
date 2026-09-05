@@ -70,6 +70,12 @@ const refreshLimiter = rateLimit({
   limit: 60,
   standardHeaders: true,
   legacyHeaders: false,
+  message: {
+    error: {
+      code: "RATE_LIMITED",
+      message: "Too many refresh attempts. Try again later.",
+    },
+  },
 })
 
 authRouter.post(

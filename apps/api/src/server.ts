@@ -1,5 +1,6 @@
 import { app } from "./app.js"
 import { env } from "./config/env.js"
+import { prisma } from "./lib/prisma.js"
 
 const server = app.listen(env.PORT, () => {
   console.log(
@@ -7,17 +8,25 @@ const server = app.listen(env.PORT, () => {
   )
 })
 
-const shutdown = (signal: string) => {
+const shutdown = async (signal: string) => {
   console.log(`${signal} received. Shutting down gracefully.`)
 
-  server.close((error) => {
+  server.close(async (error) => {
     if (error) {
       console.error("Failed to close HTTP server:", error)
+    } else {
+      console.log("HTTP server closed.")
+    }
+
+    try {
+      await prisma.$disconnect()
+      console.log("Prisma disconnected.")
+    } catch (dbError) {
+      console.error("Failed to disconnect Prisma:", dbError)
       process.exit(1)
     }
 
-    console.log("HTTP server closed.")
-    process.exit(0)
+    process.exit(error ? 1 : 0)
   })
 }
 

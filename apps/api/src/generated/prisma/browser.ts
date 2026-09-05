@@ -122,3 +122,8 @@ export type PayslipLine = Prisma.PayslipLineModel
  * 
  */
 export type PayslipDelivery = Prisma.PayslipDeliveryModel
+/**
+ * Model AuditLog
+ * 
+ */
+export type AuditLog = Prisma.AuditLogModel

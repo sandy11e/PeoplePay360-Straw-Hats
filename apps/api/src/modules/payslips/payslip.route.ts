@@ -6,6 +6,7 @@ import {
   PAYROLL_READ_ACCESS,
   requireRole,
 } from "../../auth/auth.roles.js"
+import { extractClientInfo, recordAuditLog } from "../audit/audit.service.js"
 import { PayslipStatus } from "../../generated/prisma/enums.js"
 import {
   generatePayslipsForPayrun,
@@ -221,6 +222,19 @@ payslipRouter.patch(
         auth.userId,
       )
 
+      const clientInfo = extractClientInfo(request)
+      await recordAuditLog({
+        actorUserId: auth.userId,
+        action: "PAYSLIP_PAYMENT_STATUS_UPDATED",
+        entityType: "Payslip",
+        entityId: result.id,
+        metadata: {
+          payslipNumber: result.payslipNumber,
+          paymentStatus: result.paymentStatus,
+        },
+        ...clientInfo,
+      })
+
       response.status(200).json({
         data: result,
       })
@@ -283,6 +297,20 @@ payslipRouter.post(
         auth.userId,
       )
 
+      const clientInfo = extractClientInfo(request)
+      await recordAuditLog({
+        actorUserId: auth.userId,
+        action: "PAYSLIP_EMAIL_SENT",
+        entityType: "Payslip",
+        entityId: String(request.params.id),
+        metadata: {
+          recipient: result.recipient,
+          status: result.status,
+          deliveryId: result.deliveryId,
+        },
+        ...clientInfo,
+      })
+
       response.status(200).json({
         data: result,
       })
@@ -305,6 +333,20 @@ payslipRouter.post(
         String(request.params.id),
         auth.userId,
       )
+
+      const clientInfo = extractClientInfo(request)
+      await recordAuditLog({
+        actorUserId: auth.userId,
+        action: "PAYSLIP_BULK_EMAIL_COMPLETED",
+        entityType: "Payrun",
+        entityId: String(request.params.id),
+        metadata: {
+          total: result.total,
+          sent: result.sent,
+          failed: result.failed,
+        },
+        ...clientInfo,
+      })
 
       response.status(200).json({
         data: result,

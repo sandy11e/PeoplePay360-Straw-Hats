@@ -1,12 +1,13 @@
 import { Request, Response, Router } from "express"
 
-import { requireAuth } from "../../auth/auth.middleware.js"
+import { type AuthContext, requireAuth } from "../../auth/auth.middleware.js"
 import {
   PAYROLL_MANAGE_ACCESS,
   PAYROLL_READ_ACCESS,
   requireRole,
   SALARY_ASSIGNMENT_READ_ACCESS,
 } from "../../auth/auth.roles.js"
+import { extractClientInfo, recordAuditLog } from "../audit/audit.service.js"
 
 import {
   assignSalaryStructureSchema,
@@ -224,6 +225,24 @@ salaryStructureRouter.post(
         ...bodyParsed.data,
       })
 
+      const auth = response.locals.auth as AuthContext | undefined
+      const clientInfo = extractClientInfo(request)
+
+      await recordAuditLog({
+        actorUserId: auth?.userId,
+        action: "SALARY_RULE_CREATED",
+        entityType: "SalaryRule",
+        entityId: rule.id,
+        metadata: {
+          structureId: rule.structureId,
+          code: rule.code,
+          name: rule.name,
+          category: rule.category,
+          calculationType: rule.calculationType,
+        },
+        ...clientInfo,
+      })
+
       response.status(201).json({ salaryRule: rule })
     } catch (error) {
       handleSalaryError(error, response)
@@ -266,6 +285,23 @@ salaryStructureRouter.patch(
       const rule = await updateSalaryRule({
         id: paramParsed.data.id,
         ...bodyParsed.data,
+      })
+
+      const auth = response.locals.auth as AuthContext | undefined
+      const clientInfo = extractClientInfo(request)
+
+      await recordAuditLog({
+        actorUserId: auth?.userId,
+        action: "SALARY_RULE_UPDATED",
+        entityType: "SalaryRule",
+        entityId: rule.id,
+        metadata: {
+          structureId: rule.structureId,
+          code: rule.code,
+          name: rule.name,
+          updatedFields: Object.keys(bodyParsed.data),
+        },
+        ...clientInfo,
       })
 
       response.status(200).json({ salaryRule: rule })

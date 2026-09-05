@@ -4,6 +4,7 @@ import { AuthContext, requireAuth } from "../../auth/auth.middleware.js"
 import { HR_ACCESS, requireRole } from "../../auth/auth.roles.js"
 import { UserRole } from "../../generated/prisma/enums.js"
 import { prisma } from "../../lib/prisma.js"
+import { extractClientInfo, recordAuditLog } from "../audit/audit.service.js"
 
 import {
   createLeaveAllocationSchema,
@@ -421,6 +422,21 @@ leaveRouter.post(
         comment: bodyParsed.data.comment,
       })
 
+      const clientInfo = extractClientInfo(request)
+      await recordAuditLog({
+        actorUserId: auth.userId,
+        action: "LEAVE_REQUEST_APPROVED",
+        entityType: "LeaveRequest",
+        entityId: approved.id,
+        metadata: {
+          employeeId: approved.employeeId,
+          leaveTypeId: approved.leaveTypeId,
+          requestedDays: approved.requestedDays.toString(),
+          comment: bodyParsed.data.comment ?? null,
+        },
+        ...clientInfo,
+      })
+
       response.status(200).json({ leaveRequest: approved })
     } catch (error) {
       handleLeaveError(error, response)
@@ -466,6 +482,21 @@ leaveRouter.post(
         id: paramParsed.data.id,
         reviewerUserId: auth.userId,
         comment: bodyParsed.data.comment,
+      })
+
+      const clientInfo = extractClientInfo(request)
+      await recordAuditLog({
+        actorUserId: auth.userId,
+        action: "LEAVE_REQUEST_REJECTED",
+        entityType: "LeaveRequest",
+        entityId: rejected.id,
+        metadata: {
+          employeeId: rejected.employeeId,
+          leaveTypeId: rejected.leaveTypeId,
+          requestedDays: rejected.requestedDays.toString(),
+          comment: bodyParsed.data.comment ?? null,
+        },
+        ...clientInfo,
       })
 
       response.status(200).json({ leaveRequest: rejected })

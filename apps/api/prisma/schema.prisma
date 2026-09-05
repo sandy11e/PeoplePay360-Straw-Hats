@@ -126,6 +126,7 @@ model User {
   reviewedLeaveRequests LeaveRequest[] @relation("LeaveReviewedBy")
   createdPayruns        Payrun[]       @relation("PayrunCreatedBy")
   validatedPayruns      Payrun[]       @relation("PayrunValidatedBy")
+  auditLogs             AuditLog[]     @relation("UserAuditLogs")
 
   @@map("users")
 }
@@ -642,3 +643,28 @@ model PayslipDelivery {
   @@index([channel])
   @@map("payslip_deliveries")
 }
+
+model AuditLog {
+  id          String    @id @default(uuid()) @db.Uuid
+
+  actorUserId String?   @map("actor_user_id") @db.Uuid
+  actorUser   User?     @relation("UserAuditLogs", fields: [actorUserId], references: [id], onDelete: SetNull)
+
+  action      String    @db.VarChar(100)
+  entityType  String    @map("entity_type") @db.VarChar(50)
+  entityId    String?   @map("entity_id") @db.VarChar(100)
+
+  metadata    Json?
+  ipAddress   String?   @map("ip_address") @db.VarChar(45)
+  userAgent   String?   @map("user_agent") @db.VarChar(500)
+
+  createdAt   DateTime  @default(now()) @map("created_at") @db.Timestamptz(3)
+
+  @@index([actorUserId])
+  @@index([action])
+  @@index([entityType])
+  @@index([entityId])
+  @@index([createdAt])
+  @@map("audit_logs")
+}
+

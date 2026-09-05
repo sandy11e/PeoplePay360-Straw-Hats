@@ -19,6 +19,7 @@ import { salaryStructureRouter } from "./modules/salary-structures/salary-struct
 import { payrollRouter } from "./modules/payroll/payroll.route.js"
 import { payslipRouter } from "./modules/payslips/payslip.route.js"
 import { dashboardRouter } from "./modules/dashboard/dashboard.route.js"
+import { auditRouter } from "./modules/audit/audit.route.js"
 
 export const app = express()
 
@@ -30,6 +31,8 @@ app.use(
   cors({
     origin: env.CORS_ORIGIN,
     credentials: true,
+    methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
   }),
 )
 
@@ -112,6 +115,11 @@ app.use(
 app.use(
   "/api/v1",
   dashboardRouter,
+)
+
+app.use(
+  "/api/v1/audit-logs",
+  auditRouter,
 )
 
 app.use((_request, response) => {

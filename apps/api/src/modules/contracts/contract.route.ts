@@ -1,6 +1,6 @@
 import { Router } from "express"
 
-import { requireAuth } from "../../auth/auth.middleware.js"
+import { type AuthContext, requireAuth } from "../../auth/auth.middleware.js"
 import {
   ADMIN_ONLY,
   HR_ACCESS,
@@ -8,6 +8,7 @@ import {
 } from "../../auth/auth.roles.js"
 import { ContractStatus, UserRole } from "../../generated/prisma/enums.js"
 import { prisma } from "../../lib/prisma.js"
+import { extractClientInfo, recordAuditLog } from "../audit/audit.service.js"
 
 import {
   contractIdParamSchema,
@@ -167,6 +168,23 @@ contractRouter.post(
         select: contractSelect,
       },
     )
+
+    const auth = response.locals.auth as AuthContext | undefined
+    const clientInfo = extractClientInfo(request)
+
+    await recordAuditLog({
+      actorUserId: auth?.userId,
+      action: "CONTRACT_CREATED",
+      entityType: "EmployeeContract",
+      entityId: contract.id,
+      metadata: {
+        contractNumber: contract.contractNumber,
+        employeeId: contract.employeeId,
+        startDate: contract.startDate,
+        status: contract.status,
+      },
+      ...clientInfo,
+    })
 
     response.status(201).json({
       contract,
@@ -429,6 +447,21 @@ contractRouter.patch(
         select: contractSelect,
       })
 
+    const auth = response.locals.auth as AuthContext | undefined
+    const clientInfo = extractClientInfo(request)
+
+    await recordAuditLog({
+      actorUserId: auth?.userId,
+      action: "CONTRACT_UPDATED",
+      entityType: "EmployeeContract",
+      entityId: id,
+      metadata: {
+        contractNumber: updated.contractNumber,
+        updatedFields: Object.keys(updateData),
+      },
+      ...clientInfo,
+    })
+
     response.status(200).json({
       contract: updated,
     })
@@ -568,6 +601,22 @@ contractRouter.patch(
         data: { status: newStatus },
         select: contractSelect,
       })
+
+    const auth = response.locals.auth as AuthContext | undefined
+    const clientInfo = extractClientInfo(request)
+
+    await recordAuditLog({
+      actorUserId: auth?.userId,
+      action: "CONTRACT_STATUS_CHANGED",
+      entityType: "EmployeeContract",
+      entityId: id,
+      metadata: {
+        contractNumber: contract.contractNumber,
+        previousStatus: contract.status,
+        newStatus,
+      },
+      ...clientInfo,
+    })
 
     response.status(200).json({
       contract: updated,

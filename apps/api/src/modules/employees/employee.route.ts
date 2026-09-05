@@ -1,6 +1,6 @@
 import { Router } from "express"
 
-import { requireAuth } from "../../auth/auth.middleware.js"
+import { type AuthContext, requireAuth } from "../../auth/auth.middleware.js"
 import {
   HR_ACCESS,
   PAYROLL_MANAGE_ACCESS,
@@ -10,6 +10,7 @@ import {
 } from "../../auth/auth.roles.js"
 import { UserRole } from "../../generated/prisma/enums.js"
 import { prisma } from "../../lib/prisma.js"
+import { extractClientInfo, recordAuditLog } from "../audit/audit.service.js"
 
 import {
   createEmployeeSchema,
@@ -691,6 +692,21 @@ employeeRouter.patch(
       select: employeeSelect,
     })
 
+    const auth = response.locals.auth as AuthContext | undefined
+    const clientInfo = extractClientInfo(request)
+
+    await recordAuditLog({
+      actorUserId: auth?.userId,
+      action: "EMPLOYEE_UPDATED",
+      entityType: "Employee",
+      entityId: id,
+      metadata: {
+        employeeCode: updated.employeeCode,
+        updatedFields: Object.keys(updateData),
+      },
+      ...clientInfo,
+    })
+
     response.status(200).json({
       employee: updated,
     })
@@ -768,6 +784,22 @@ employeeRouter.patch(
       where: { id },
       data: { employmentStatus: status },
       select: employeeSelect,
+    })
+
+    const auth = response.locals.auth as AuthContext | undefined
+    const clientInfo = extractClientInfo(request)
+
+    await recordAuditLog({
+      actorUserId: auth?.userId,
+      action: "EMPLOYMENT_STATUS_CHANGED",
+      entityType: "Employee",
+      entityId: id,
+      metadata: {
+        employeeCode: employee.employeeCode,
+        previousStatus: employee.employmentStatus,
+        newStatus: status,
+      },
+      ...clientInfo,
     })
 
     response.status(200).json({

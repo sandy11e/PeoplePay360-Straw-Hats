@@ -6,6 +6,7 @@ import {
   PAYROLL_READ_ACCESS,
   requireRole,
 } from "../../auth/auth.roles.js"
+import { extractClientInfo, recordAuditLog } from "../audit/audit.service.js"
 
 import {
   calculatePayrun,
@@ -156,7 +157,25 @@ payrollRouter.post(
         return
       }
 
+      const auth = response.locals.auth as AuthContext
       const payrun = await calculatePayrun(paramParsed.data.id)
+
+      const clientInfo = extractClientInfo(request)
+      await recordAuditLog({
+        actorUserId: auth.userId,
+        action: "PAYRUN_CALCULATED",
+        entityType: "Payrun",
+        entityId: payrun.id,
+        metadata: {
+          code: payrun.code,
+          periodStart: payrun.periodStart,
+          periodEnd: payrun.periodEnd,
+          status: payrun.status,
+          employeeCount: payrun._count?.items ?? 0,
+        },
+        ...clientInfo,
+      })
+
       response.status(200).json({ payrun })
     } catch (error) {
       handlePayrollError(error, response)
@@ -187,6 +206,21 @@ payrollRouter.post(
       }
 
       const payrun = await validatePayrun(paramParsed.data.id, auth.userId)
+
+      const clientInfo = extractClientInfo(request)
+      await recordAuditLog({
+        actorUserId: auth.userId,
+        action: "PAYRUN_VALIDATED",
+        entityType: "Payrun",
+        entityId: payrun.id,
+        metadata: {
+          code: payrun.code,
+          status: payrun.status,
+          validatedAt: payrun.validatedAt,
+        },
+        ...clientInfo,
+      })
+
       response.status(200).json({ payrun })
     } catch (error) {
       handlePayrollError(error, response)

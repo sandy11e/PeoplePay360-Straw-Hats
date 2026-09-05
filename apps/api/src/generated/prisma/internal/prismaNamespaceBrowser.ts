@@ -71,7 +71,8 @@ export const ModelName = {
   PayrunEmployee: 'PayrunEmployee',
   Payslip: 'Payslip',
   PayslipLine: 'PayslipLine',
-  PayslipDelivery: 'PayslipDelivery'
+  PayslipDelivery: 'PayslipDelivery',
+  AuditLog: 'AuditLog'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -423,6 +424,21 @@ export const PayslipDeliveryScalarFieldEnum = {
 } as const
 
 export type PayslipDeliveryScalarFieldEnum = (typeof PayslipDeliveryScalarFieldEnum)[keyof typeof PayslipDeliveryScalarFieldEnum]
+
+
+export const AuditLogScalarFieldEnum = {
+  id: 'id',
+  actorUserId: 'actorUserId',
+  action: 'action',
+  entityType: 'entityType',
+  entityId: 'entityId',
+  metadata: 'metadata',
+  ipAddress: 'ipAddress',
+  userAgent: 'userAgent',
+  createdAt: 'createdAt'
+} as const
+
+export type AuditLogScalarFieldEnum = (typeof AuditLogScalarFieldEnum)[keyof typeof AuditLogScalarFieldEnum]
 
 
 export const SortOrder = {

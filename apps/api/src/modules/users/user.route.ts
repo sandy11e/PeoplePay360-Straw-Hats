@@ -1,13 +1,14 @@
 import bcrypt from "bcryptjs"
 import { Router } from "express"
 
-import { requireAuth } from "../../auth/auth.middleware.js"
+import { type AuthContext, requireAuth } from "../../auth/auth.middleware.js"
 import {
   ADMIN_ONLY,
   requireRole,
 } from "../../auth/auth.roles.js"
 import { UserRole } from "../../generated/prisma/enums.js"
 import { prisma } from "../../lib/prisma.js"
+import { extractClientInfo, recordAuditLog } from "../audit/audit.service.js"
 
 import {
   createUserSchema,
@@ -82,6 +83,22 @@ userRouter.post(
       },
 
       select: userSelect,
+    })
+
+    const auth = response.locals.auth as AuthContext | undefined
+    const clientInfo = extractClientInfo(request)
+
+    await recordAuditLog({
+      actorUserId: auth?.userId,
+      action: "USER_CREATED",
+      entityType: "User",
+      entityId: user.id,
+      metadata: {
+        email: user.email,
+        role: user.role,
+        isActive: user.isActive,
+      },
+      ...clientInfo,
     })
 
     response.status(201).json({
@@ -272,11 +289,24 @@ userRouter.patch(
     // Prepare update data
     const updateData: Record<string, unknown> = {}
 
+    const auth = response.locals.auth as AuthContext | undefined
+    const clientInfo = extractClientInfo(request)
+
     if (updates.email !== undefined) {
       updateData.email = updates.email
     }
 
     if (updates.role !== undefined) {
+      // Role escalation protection: administrators cannot change their own role
+      if (auth && auth.userId === id && updates.role !== user.role) {
+        response.status(400).json({
+          error: {
+            code: "ROLE_MODIFICATION_RESTRICTED",
+            message: "Cannot modify your own user role",
+          },
+        })
+        return
+      }
       updateData.role = updates.role
     }
 
@@ -303,6 +333,50 @@ userRouter.patch(
       data: updateData,
       select: userSelect,
     })
+
+    // Audit logs for user updates
+    if (updates.role !== undefined && updates.role !== user.role) {
+      await recordAuditLog({
+        actorUserId: auth?.userId,
+        action: "USER_ROLE_CHANGED",
+        entityType: "User",
+        entityId: id,
+        metadata: {
+          previousRole: user.role,
+          newRole: updates.role,
+        },
+        ...clientInfo,
+      })
+    }
+
+    if (updates.isActive !== undefined && updates.isActive !== user.isActive) {
+      await recordAuditLog({
+        actorUserId: auth?.userId,
+        action: updates.isActive ? "USER_REACTIVATED" : "USER_DEACTIVATED",
+        entityType: "User",
+        entityId: id,
+        metadata: {
+          email: user.email,
+          previousActive: user.isActive,
+          newActive: updates.isActive,
+        },
+        ...clientInfo,
+      })
+    }
+
+    if (updates.email !== undefined && updates.email !== user.email) {
+      await recordAuditLog({
+        actorUserId: auth?.userId,
+        action: "USER_EMAIL_UPDATED",
+        entityType: "User",
+        entityId: id,
+        metadata: {
+          previousEmail: user.email,
+          newEmail: updates.email,
+        },
+        ...clientInfo,
+      })
+    }
 
     response.status(200).json({
       user: updated,
@@ -393,6 +467,21 @@ userRouter.post(
     const updated = await prisma.user.findUnique({
       where: { id },
       select: userSelect,
+    })
+
+    const auth = response.locals.auth as AuthContext | undefined
+    const clientInfo = extractClientInfo(request)
+
+    await recordAuditLog({
+      actorUserId: auth?.userId,
+      action: "PASSWORD_RESET",
+      entityType: "User",
+      entityId: id,
+      metadata: {
+        email: user.email,
+        initiatedByAdmin: true,
+      },
+      ...clientInfo,
     })
 
     response.status(200).json({

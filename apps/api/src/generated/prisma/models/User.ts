@@ -211,6 +211,7 @@ export type UserWhereInput = {
   reviewedLeaveRequests?: Prisma.LeaveRequestListRelationFilter
   createdPayruns?: Prisma.PayrunListRelationFilter
   validatedPayruns?: Prisma.PayrunListRelationFilter
+  auditLogs?: Prisma.AuditLogListRelationFilter
 }
 
 export type UserOrderByWithRelationInput = {
@@ -227,6 +228,7 @@ export type UserOrderByWithRelationInput = {
   reviewedLeaveRequests?: Prisma.LeaveRequestOrderByRelationAggregateInput
   createdPayruns?: Prisma.PayrunOrderByRelationAggregateInput
   validatedPayruns?: Prisma.PayrunOrderByRelationAggregateInput
+  auditLogs?: Prisma.AuditLogOrderByRelationAggregateInput
 }
 
 export type UserWhereUniqueInput = Prisma.AtLeast<{
@@ -246,6 +248,7 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   reviewedLeaveRequests?: Prisma.LeaveRequestListRelationFilter
   createdPayruns?: Prisma.PayrunListRelationFilter
   validatedPayruns?: Prisma.PayrunListRelationFilter
+  auditLogs?: Prisma.AuditLogListRelationFilter
 }, "id" | "email">
 
 export type UserOrderByWithAggregationInput = {
@@ -290,6 +293,7 @@ export type UserCreateInput = {
   reviewedLeaveRequests?: Prisma.LeaveRequestCreateNestedManyWithoutReviewedByUserInput
   createdPayruns?: Prisma.PayrunCreateNestedManyWithoutCreatedByUserInput
   validatedPayruns?: Prisma.PayrunCreateNestedManyWithoutValidatedByUserInput
+  auditLogs?: Prisma.AuditLogCreateNestedManyWithoutActorUserInput
 }
 
 export type UserUncheckedCreateInput = {
@@ -306,6 +310,7 @@ export type UserUncheckedCreateInput = {
   reviewedLeaveRequests?: Prisma.LeaveRequestUncheckedCreateNestedManyWithoutReviewedByUserInput
   createdPayruns?: Prisma.PayrunUncheckedCreateNestedManyWithoutCreatedByUserInput
   validatedPayruns?: Prisma.PayrunUncheckedCreateNestedManyWithoutValidatedByUserInput
+  auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutActorUserInput
 }
 
 export type UserUpdateInput = {
@@ -322,6 +327,7 @@ export type UserUpdateInput = {
   reviewedLeaveRequests?: Prisma.LeaveRequestUpdateManyWithoutReviewedByUserNestedInput
   createdPayruns?: Prisma.PayrunUpdateManyWithoutCreatedByUserNestedInput
   validatedPayruns?: Prisma.PayrunUpdateManyWithoutValidatedByUserNestedInput
+  auditLogs?: Prisma.AuditLogUpdateManyWithoutActorUserNestedInput
 }
 
 export type UserUncheckedUpdateInput = {
@@ -338,6 +344,7 @@ export type UserUncheckedUpdateInput = {
   reviewedLeaveRequests?: Prisma.LeaveRequestUncheckedUpdateManyWithoutReviewedByUserNestedInput
   createdPayruns?: Prisma.PayrunUncheckedUpdateManyWithoutCreatedByUserNestedInput
   validatedPayruns?: Prisma.PayrunUncheckedUpdateManyWithoutValidatedByUserNestedInput
+  auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutActorUserNestedInput
 }
 
 export type UserCreateManyInput = {
@@ -512,6 +519,22 @@ export type UserUpdateOneWithoutValidatedPayrunsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutValidatedPayrunsInput, Prisma.UserUpdateWithoutValidatedPayrunsInput>, Prisma.UserUncheckedUpdateWithoutValidatedPayrunsInput>
 }
 
+export type UserCreateNestedOneWithoutAuditLogsInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutAuditLogsInput, Prisma.UserUncheckedCreateWithoutAuditLogsInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutAuditLogsInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserUpdateOneWithoutAuditLogsNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutAuditLogsInput, Prisma.UserUncheckedCreateWithoutAuditLogsInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutAuditLogsInput
+  upsert?: Prisma.UserUpsertWithoutAuditLogsInput
+  disconnect?: Prisma.UserWhereInput | boolean
+  delete?: Prisma.UserWhereInput | boolean
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutAuditLogsInput, Prisma.UserUpdateWithoutAuditLogsInput>, Prisma.UserUncheckedUpdateWithoutAuditLogsInput>
+}
+
 export type UserCreateWithoutRefreshTokensInput = {
   id?: string
   email: string
@@ -525,6 +548,7 @@ export type UserCreateWithoutRefreshTokensInput = {
   reviewedLeaveRequests?: Prisma.LeaveRequestCreateNestedManyWithoutReviewedByUserInput
   createdPayruns?: Prisma.PayrunCreateNestedManyWithoutCreatedByUserInput
   validatedPayruns?: Prisma.PayrunCreateNestedManyWithoutValidatedByUserInput
+  auditLogs?: Prisma.AuditLogCreateNestedManyWithoutActorUserInput
 }
 
 export type UserUncheckedCreateWithoutRefreshTokensInput = {
@@ -540,6 +564,7 @@ export type UserUncheckedCreateWithoutRefreshTokensInput = {
   reviewedLeaveRequests?: Prisma.LeaveRequestUncheckedCreateNestedManyWithoutReviewedByUserInput
   createdPayruns?: Prisma.PayrunUncheckedCreateNestedManyWithoutCreatedByUserInput
   validatedPayruns?: Prisma.PayrunUncheckedCreateNestedManyWithoutValidatedByUserInput
+  auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutActorUserInput
 }
 
 export type UserCreateOrConnectWithoutRefreshTokensInput = {
@@ -571,6 +596,7 @@ export type UserUpdateWithoutRefreshTokensInput = {
   reviewedLeaveRequests?: Prisma.LeaveRequestUpdateManyWithoutReviewedByUserNestedInput
   createdPayruns?: Prisma.PayrunUpdateManyWithoutCreatedByUserNestedInput
   validatedPayruns?: Prisma.PayrunUpdateManyWithoutValidatedByUserNestedInput
+  auditLogs?: Prisma.AuditLogUpdateManyWithoutActorUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutRefreshTokensInput = {
@@ -586,6 +612,7 @@ export type UserUncheckedUpdateWithoutRefreshTokensInput = {
   reviewedLeaveRequests?: Prisma.LeaveRequestUncheckedUpdateManyWithoutReviewedByUserNestedInput
   createdPayruns?: Prisma.PayrunUncheckedUpdateManyWithoutCreatedByUserNestedInput
   validatedPayruns?: Prisma.PayrunUncheckedUpdateManyWithoutValidatedByUserNestedInput
+  auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutActorUserNestedInput
 }
 
 export type UserCreateWithoutEmployeeInput = {
@@ -601,6 +628,7 @@ export type UserCreateWithoutEmployeeInput = {
   reviewedLeaveRequests?: Prisma.LeaveRequestCreateNestedManyWithoutReviewedByUserInput
   createdPayruns?: Prisma.PayrunCreateNestedManyWithoutCreatedByUserInput
   validatedPayruns?: Prisma.PayrunCreateNestedManyWithoutValidatedByUserInput
+  auditLogs?: Prisma.AuditLogCreateNestedManyWithoutActorUserInput
 }
 
 export type UserUncheckedCreateWithoutEmployeeInput = {
@@ -616,6 +644,7 @@ export type UserUncheckedCreateWithoutEmployeeInput = {
   reviewedLeaveRequests?: Prisma.LeaveRequestUncheckedCreateNestedManyWithoutReviewedByUserInput
   createdPayruns?: Prisma.PayrunUncheckedCreateNestedManyWithoutCreatedByUserInput
   validatedPayruns?: Prisma.PayrunUncheckedCreateNestedManyWithoutValidatedByUserInput
+  auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutActorUserInput
 }
 
 export type UserCreateOrConnectWithoutEmployeeInput = {
@@ -647,6 +676,7 @@ export type UserUpdateWithoutEmployeeInput = {
   reviewedLeaveRequests?: Prisma.LeaveRequestUpdateManyWithoutReviewedByUserNestedInput
   createdPayruns?: Prisma.PayrunUpdateManyWithoutCreatedByUserNestedInput
   validatedPayruns?: Prisma.PayrunUpdateManyWithoutValidatedByUserNestedInput
+  auditLogs?: Prisma.AuditLogUpdateManyWithoutActorUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutEmployeeInput = {
@@ -662,6 +692,7 @@ export type UserUncheckedUpdateWithoutEmployeeInput = {
   reviewedLeaveRequests?: Prisma.LeaveRequestUncheckedUpdateManyWithoutReviewedByUserNestedInput
   createdPayruns?: Prisma.PayrunUncheckedUpdateManyWithoutCreatedByUserNestedInput
   validatedPayruns?: Prisma.PayrunUncheckedUpdateManyWithoutValidatedByUserNestedInput
+  auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutActorUserNestedInput
 }
 
 export type UserCreateWithoutReviewedLeaveRequestsInput = {
@@ -677,6 +708,7 @@ export type UserCreateWithoutReviewedLeaveRequestsInput = {
   employee?: Prisma.EmployeeCreateNestedOneWithoutUserInput
   createdPayruns?: Prisma.PayrunCreateNestedManyWithoutCreatedByUserInput
   validatedPayruns?: Prisma.PayrunCreateNestedManyWithoutValidatedByUserInput
+  auditLogs?: Prisma.AuditLogCreateNestedManyWithoutActorUserInput
 }
 
 export type UserUncheckedCreateWithoutReviewedLeaveRequestsInput = {
@@ -692,6 +724,7 @@ export type UserUncheckedCreateWithoutReviewedLeaveRequestsInput = {
   employee?: Prisma.EmployeeUncheckedCreateNestedOneWithoutUserInput
   createdPayruns?: Prisma.PayrunUncheckedCreateNestedManyWithoutCreatedByUserInput
   validatedPayruns?: Prisma.PayrunUncheckedCreateNestedManyWithoutValidatedByUserInput
+  auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutActorUserInput
 }
 
 export type UserCreateOrConnectWithoutReviewedLeaveRequestsInput = {
@@ -723,6 +756,7 @@ export type UserUpdateWithoutReviewedLeaveRequestsInput = {
   employee?: Prisma.EmployeeUpdateOneWithoutUserNestedInput
   createdPayruns?: Prisma.PayrunUpdateManyWithoutCreatedByUserNestedInput
   validatedPayruns?: Prisma.PayrunUpdateManyWithoutValidatedByUserNestedInput
+  auditLogs?: Prisma.AuditLogUpdateManyWithoutActorUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutReviewedLeaveRequestsInput = {
@@ -738,6 +772,7 @@ export type UserUncheckedUpdateWithoutReviewedLeaveRequestsInput = {
   employee?: Prisma.EmployeeUncheckedUpdateOneWithoutUserNestedInput
   createdPayruns?: Prisma.PayrunUncheckedUpdateManyWithoutCreatedByUserNestedInput
   validatedPayruns?: Prisma.PayrunUncheckedUpdateManyWithoutValidatedByUserNestedInput
+  auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutActorUserNestedInput
 }
 
 export type UserCreateWithoutCreatedPayrunsInput = {
@@ -753,6 +788,7 @@ export type UserCreateWithoutCreatedPayrunsInput = {
   employee?: Prisma.EmployeeCreateNestedOneWithoutUserInput
   reviewedLeaveRequests?: Prisma.LeaveRequestCreateNestedManyWithoutReviewedByUserInput
   validatedPayruns?: Prisma.PayrunCreateNestedManyWithoutValidatedByUserInput
+  auditLogs?: Prisma.AuditLogCreateNestedManyWithoutActorUserInput
 }
 
 export type UserUncheckedCreateWithoutCreatedPayrunsInput = {
@@ -768,6 +804,7 @@ export type UserUncheckedCreateWithoutCreatedPayrunsInput = {
   employee?: Prisma.EmployeeUncheckedCreateNestedOneWithoutUserInput
   reviewedLeaveRequests?: Prisma.LeaveRequestUncheckedCreateNestedManyWithoutReviewedByUserInput
   validatedPayruns?: Prisma.PayrunUncheckedCreateNestedManyWithoutValidatedByUserInput
+  auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutActorUserInput
 }
 
 export type UserCreateOrConnectWithoutCreatedPayrunsInput = {
@@ -788,6 +825,7 @@ export type UserCreateWithoutValidatedPayrunsInput = {
   employee?: Prisma.EmployeeCreateNestedOneWithoutUserInput
   reviewedLeaveRequests?: Prisma.LeaveRequestCreateNestedManyWithoutReviewedByUserInput
   createdPayruns?: Prisma.PayrunCreateNestedManyWithoutCreatedByUserInput
+  auditLogs?: Prisma.AuditLogCreateNestedManyWithoutActorUserInput
 }
 
 export type UserUncheckedCreateWithoutValidatedPayrunsInput = {
@@ -803,6 +841,7 @@ export type UserUncheckedCreateWithoutValidatedPayrunsInput = {
   employee?: Prisma.EmployeeUncheckedCreateNestedOneWithoutUserInput
   reviewedLeaveRequests?: Prisma.LeaveRequestUncheckedCreateNestedManyWithoutReviewedByUserInput
   createdPayruns?: Prisma.PayrunUncheckedCreateNestedManyWithoutCreatedByUserInput
+  auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutActorUserInput
 }
 
 export type UserCreateOrConnectWithoutValidatedPayrunsInput = {
@@ -834,6 +873,7 @@ export type UserUpdateWithoutCreatedPayrunsInput = {
   employee?: Prisma.EmployeeUpdateOneWithoutUserNestedInput
   reviewedLeaveRequests?: Prisma.LeaveRequestUpdateManyWithoutReviewedByUserNestedInput
   validatedPayruns?: Prisma.PayrunUpdateManyWithoutValidatedByUserNestedInput
+  auditLogs?: Prisma.AuditLogUpdateManyWithoutActorUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutCreatedPayrunsInput = {
@@ -849,6 +889,7 @@ export type UserUncheckedUpdateWithoutCreatedPayrunsInput = {
   employee?: Prisma.EmployeeUncheckedUpdateOneWithoutUserNestedInput
   reviewedLeaveRequests?: Prisma.LeaveRequestUncheckedUpdateManyWithoutReviewedByUserNestedInput
   validatedPayruns?: Prisma.PayrunUncheckedUpdateManyWithoutValidatedByUserNestedInput
+  auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutActorUserNestedInput
 }
 
 export type UserUpsertWithoutValidatedPayrunsInput = {
@@ -875,6 +916,7 @@ export type UserUpdateWithoutValidatedPayrunsInput = {
   employee?: Prisma.EmployeeUpdateOneWithoutUserNestedInput
   reviewedLeaveRequests?: Prisma.LeaveRequestUpdateManyWithoutReviewedByUserNestedInput
   createdPayruns?: Prisma.PayrunUpdateManyWithoutCreatedByUserNestedInput
+  auditLogs?: Prisma.AuditLogUpdateManyWithoutActorUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutValidatedPayrunsInput = {
@@ -890,6 +932,87 @@ export type UserUncheckedUpdateWithoutValidatedPayrunsInput = {
   employee?: Prisma.EmployeeUncheckedUpdateOneWithoutUserNestedInput
   reviewedLeaveRequests?: Prisma.LeaveRequestUncheckedUpdateManyWithoutReviewedByUserNestedInput
   createdPayruns?: Prisma.PayrunUncheckedUpdateManyWithoutCreatedByUserNestedInput
+  auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutActorUserNestedInput
+}
+
+export type UserCreateWithoutAuditLogsInput = {
+  id?: string
+  email: string
+  passwordHash: string
+  role?: $Enums.UserRole
+  isActive?: boolean
+  lastLoginAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  refreshTokens?: Prisma.RefreshTokenCreateNestedManyWithoutUserInput
+  employee?: Prisma.EmployeeCreateNestedOneWithoutUserInput
+  reviewedLeaveRequests?: Prisma.LeaveRequestCreateNestedManyWithoutReviewedByUserInput
+  createdPayruns?: Prisma.PayrunCreateNestedManyWithoutCreatedByUserInput
+  validatedPayruns?: Prisma.PayrunCreateNestedManyWithoutValidatedByUserInput
+}
+
+export type UserUncheckedCreateWithoutAuditLogsInput = {
+  id?: string
+  email: string
+  passwordHash: string
+  role?: $Enums.UserRole
+  isActive?: boolean
+  lastLoginAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  refreshTokens?: Prisma.RefreshTokenUncheckedCreateNestedManyWithoutUserInput
+  employee?: Prisma.EmployeeUncheckedCreateNestedOneWithoutUserInput
+  reviewedLeaveRequests?: Prisma.LeaveRequestUncheckedCreateNestedManyWithoutReviewedByUserInput
+  createdPayruns?: Prisma.PayrunUncheckedCreateNestedManyWithoutCreatedByUserInput
+  validatedPayruns?: Prisma.PayrunUncheckedCreateNestedManyWithoutValidatedByUserInput
+}
+
+export type UserCreateOrConnectWithoutAuditLogsInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutAuditLogsInput, Prisma.UserUncheckedCreateWithoutAuditLogsInput>
+}
+
+export type UserUpsertWithoutAuditLogsInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutAuditLogsInput, Prisma.UserUncheckedUpdateWithoutAuditLogsInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutAuditLogsInput, Prisma.UserUncheckedCreateWithoutAuditLogsInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutAuditLogsInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutAuditLogsInput, Prisma.UserUncheckedUpdateWithoutAuditLogsInput>
+}
+
+export type UserUpdateWithoutAuditLogsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
+  role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  refreshTokens?: Prisma.RefreshTokenUpdateManyWithoutUserNestedInput
+  employee?: Prisma.EmployeeUpdateOneWithoutUserNestedInput
+  reviewedLeaveRequests?: Prisma.LeaveRequestUpdateManyWithoutReviewedByUserNestedInput
+  createdPayruns?: Prisma.PayrunUpdateManyWithoutCreatedByUserNestedInput
+  validatedPayruns?: Prisma.PayrunUpdateManyWithoutValidatedByUserNestedInput
+}
+
+export type UserUncheckedUpdateWithoutAuditLogsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
+  role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  refreshTokens?: Prisma.RefreshTokenUncheckedUpdateManyWithoutUserNestedInput
+  employee?: Prisma.EmployeeUncheckedUpdateOneWithoutUserNestedInput
+  reviewedLeaveRequests?: Prisma.LeaveRequestUncheckedUpdateManyWithoutReviewedByUserNestedInput
+  createdPayruns?: Prisma.PayrunUncheckedUpdateManyWithoutCreatedByUserNestedInput
+  validatedPayruns?: Prisma.PayrunUncheckedUpdateManyWithoutValidatedByUserNestedInput
 }
 
 
@@ -902,6 +1025,7 @@ export type UserCountOutputType = {
   reviewedLeaveRequests: number
   createdPayruns: number
   validatedPayruns: number
+  auditLogs: number
 }
 
 export type UserCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -909,6 +1033,7 @@ export type UserCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.I
   reviewedLeaveRequests?: boolean | UserCountOutputTypeCountReviewedLeaveRequestsArgs
   createdPayruns?: boolean | UserCountOutputTypeCountCreatedPayrunsArgs
   validatedPayruns?: boolean | UserCountOutputTypeCountValidatedPayrunsArgs
+  auditLogs?: boolean | UserCountOutputTypeCountAuditLogsArgs
 }
 
 /**
@@ -949,6 +1074,13 @@ export type UserCountOutputTypeCountValidatedPayrunsArgs<ExtArgs extends runtime
   where?: Prisma.PayrunWhereInput
 }
 
+/**
+ * UserCountOutputType without action
+ */
+export type UserCountOutputTypeCountAuditLogsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.AuditLogWhereInput
+}
+
 
 export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -964,6 +1096,7 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   reviewedLeaveRequests?: boolean | Prisma.User$reviewedLeaveRequestsArgs<ExtArgs>
   createdPayruns?: boolean | Prisma.User$createdPayrunsArgs<ExtArgs>
   validatedPayruns?: boolean | Prisma.User$validatedPayrunsArgs<ExtArgs>
+  auditLogs?: boolean | Prisma.User$auditLogsArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["user"]>
 
@@ -1007,6 +1140,7 @@ export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   reviewedLeaveRequests?: boolean | Prisma.User$reviewedLeaveRequestsArgs<ExtArgs>
   createdPayruns?: boolean | Prisma.User$createdPayrunsArgs<ExtArgs>
   validatedPayruns?: boolean | Prisma.User$validatedPayrunsArgs<ExtArgs>
+  auditLogs?: boolean | Prisma.User$auditLogsArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type UserIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
@@ -1020,6 +1154,7 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     reviewedLeaveRequests: Prisma.$LeaveRequestPayload<ExtArgs>[]
     createdPayruns: Prisma.$PayrunPayload<ExtArgs>[]
     validatedPayruns: Prisma.$PayrunPayload<ExtArgs>[]
+    auditLogs: Prisma.$AuditLogPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -1429,6 +1564,7 @@ export interface Prisma__UserClient<T, Null = never, ExtArgs extends runtime.Typ
   reviewedLeaveRequests<T extends Prisma.User$reviewedLeaveRequestsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$reviewedLeaveRequestsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$LeaveRequestPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   createdPayruns<T extends Prisma.User$createdPayrunsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$createdPayrunsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$PayrunPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   validatedPayruns<T extends Prisma.User$validatedPayrunsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$validatedPayrunsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$PayrunPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  auditLogs<T extends Prisma.User$auditLogsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$auditLogsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$AuditLogPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1971,6 +2107,30 @@ export type User$validatedPayrunsArgs<ExtArgs extends runtime.Types.Extensions.I
   take?: number
   skip?: number
   distinct?: Prisma.PayrunScalarFieldEnum | Prisma.PayrunScalarFieldEnum[]
+}
+
+/**
+ * User.auditLogs
+ */
+export type User$auditLogsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the AuditLog
+   */
+  select?: Prisma.AuditLogSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the AuditLog
+   */
+  omit?: Prisma.AuditLogOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.AuditLogInclude<ExtArgs> | null
+  where?: Prisma.AuditLogWhereInput
+  orderBy?: Prisma.AuditLogOrderByWithRelationInput | Prisma.AuditLogOrderByWithRelationInput[]
+  cursor?: Prisma.AuditLogWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.AuditLogScalarFieldEnum | Prisma.AuditLogScalarFieldEnum[]
 }
 
 /**

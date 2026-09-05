@@ -5,7 +5,7 @@ import type {
 } from "express"
 
 import type { UserRole } from "../generated/prisma/enums.js"
-
+import { prisma } from "../lib/prisma.js"
 import { verifyAccessToken } from "./auth.tokens.js"
 
 export interface AuthContext {
@@ -41,7 +41,27 @@ export async function requireAuth(
   try {
     const auth = await verifyAccessToken(token)
 
-    response.locals.auth = auth
+    // Verify user is active in DB (prevent deactivated accounts from using unexpired access tokens)
+    const user = await prisma.user.findUnique({
+      where: { id: auth.userId },
+      select: { id: true, isActive: true, role: true },
+    })
+
+    if (!user || !user.isActive) {
+      response.status(401).json({
+        error: {
+          code: "ACCOUNT_DISABLED",
+          message: "Account is disabled or no longer exists",
+        },
+      })
+
+      return
+    }
+
+    response.locals.auth = {
+      userId: user.id,
+      role: user.role,
+    }
 
     next()
   } catch {
@@ -52,4 +72,4 @@ export async function requireAuth(
       },
     })
   }
-}
+}
